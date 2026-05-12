@@ -94,12 +94,12 @@ Rules:
 
 Example categories:
 
-- Methods
-- Statistics
-- Cognitive Neuroscience
-- Clinical Psychology
-- Electives
-- Research Skills
+- Physical Chemistry
+- Organic Chemistry
+- Inorganic Chemistry
+- Medicinal Chemistry
+- Mathematics
+- Computer Science
 
 ---
 
@@ -136,7 +136,7 @@ Fields:
 - `specialization`
 - `module`
 - `required_credit_points`
-- `required`
+- `is_mandatory`
 - `display_order`
 
 Rules:
@@ -190,7 +190,7 @@ The evaluation engine must:
 - Identify all modules each course may count toward.
 - Try possible allocations of selected courses to eligible modules.
 - Ensure each course is normally counted only once.
-- Check module-specific credit requirements.
+- Check specialization-and-module-specific credit requirements.
 - Check additional cross-module credit requirements.
 - Return either:
   - a passing solution, or
