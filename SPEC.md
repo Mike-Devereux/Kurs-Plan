@@ -69,6 +69,7 @@ Fields:
 Rules:
 
 - `credit_points` must be stored as a float-compatible numeric type because some courses may award half credit points.
+- `code`s are unique
 - Each course belongs to one category.
 - Each course can count toward one or more modules.
 - In a specialization check, each course should normally be counted only once unless later rules explicitly allow otherwise.
@@ -136,7 +137,6 @@ Fields:
 - `specialization`
 - `module`
 - `required_credit_points`
-- `is_mandatory`
 - `display_order`
 
 Rules:
