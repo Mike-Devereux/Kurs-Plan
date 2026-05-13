@@ -243,12 +243,28 @@ Test:
 
 ## 6. Admin Interface Decisions
 
-Use Django Admin initially.
+Create custom admin page to contain workflow
 
-Reason:
+On the page admins can:
 
-- Fast to implement
-- Good enough for trusted admin users
+- See a box with a list of existing course categories
+- Add/edit/delete course categories in the box
+
+- See another box with a list of existing courses
+- Add/edit/delete courses in the box
+
+- See another box with a list of existing modules
+- Add/edit/delete modules in the box
+
+-See another box with a list of existing course specializations
+- Add/edit/delete specializations
+
+The add/edit workflow should change depending on the object type, so:
+- in the case of course categories only the properties are set
+- in the case of courses properties are set, plus there is a dropdown with a list of current course categories, where one must be selected, plus a dropdown for modules, where one or more modules must be selected
+- in the case of modules only properties are set
+- in the case of specializations properties are set, plus module requirements and additional requirement rules. For module requirements, it should be possible to add/edit/delete rows with one rule per row. In each row a unique module must be selected from a dropdown and a corresponding required_credit_points must be entered. For additional requirement rules, it should be possible to similarly add/edit/delete one per row.
+
 
 ---
 

@@ -1,0 +1,38 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}Dashboard – Manage{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Manage the data used by the specialization checker.</p>
+
+    <div class="dashboard">
+        <section class="box" id="box-categories" aria-labelledby="box-categories-title">
+            <header class="box__header">
+                <h2 class="box__title" id="box-categories-title">Course categories</h2>
+            </header>
+            <p class="box__placeholder">List and actions will appear here in step 3.</p>
+        </section>
+
+        <section class="box" id="box-modules" aria-labelledby="box-modules-title">
+            <header class="box__header">
+                <h2 class="box__title" id="box-modules-title">Modules</h2>
+            </header>
+            <p class="box__placeholder">List and actions will appear here in step 3.</p>
+        </section>
+
+        <section class="box" id="box-courses" aria-labelledby="box-courses-title">
+            <header class="box__header">
+                <h2 class="box__title" id="box-courses-title">Courses</h2>
+            </header>
+            <p class="box__placeholder">List and actions will appear here in step 3.</p>
+        </section>
+
+        <section class="box" id="box-specializations" aria-labelledby="box-specializations-title">
+            <header class="box__header">
+                <h2 class="box__title" id="box-specializations-title">Specializations</h2>
+            </header>
+            <p class="box__placeholder">List and actions will appear here in step 4.</p>
+        </section>
+    </div>
+{% endblock %}

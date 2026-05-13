@@ -1,0 +1,204 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7;
+    color: #1f2328;
+    line-height: 1.4;
+}
+
+a {
+    color: #0969da;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #1f2328;
+    color: white;
+    padding: 0.75rem 1.5rem;
+}
+
+.topbar__brand {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.topbar__nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.topbar__nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.topbar__nav a:hover {
+    text-decoration: underline;
+}
+
+.topbar__user {
+    opacity: 0.8;
+}
+
+.topbar__logout {
+    display: inline;
+    margin: 0;
+}
+
+.topbar__logout button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font: inherit;
+}
+
+.topbar__logout button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.main {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.page-title {
+    margin: 0 0 0.25rem;
+}
+
+.page-subtitle {
+    margin: 0 0 1.5rem;
+    color: #6a737d;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.box {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 1.25rem;
+}
+
+.box__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.box__title {
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.box__placeholder {
+    color: #6a737d;
+    font-style: italic;
+    margin: 0;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+.modal:not(:empty) {
+    display: flex;
+}
+
+.modal__card {
+    background: white;
+    border-radius: 0.5rem;
+    width: min(560px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.auth-card h1 {
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+}
+
+.auth-card p {
+    margin: 0 0 0.75rem;
+}
+
+.auth-card label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.auth-card input[type="text"],
+.auth-card input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    font: inherit;
+}
+
+.auth-card button {
+    background: #0969da;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font: inherit;
+}
+
+.auth-card button:hover {
+    background: #0758b6;
+}
+
+.errors {
+    list-style: none;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+    border-radius: 0.25rem;
+    background: #ffe7e7;
+    color: #8b0000;
+}
+
+.error {
+    color: #8b0000;
+}

@@ -1,0 +1,10 @@
+{% comment %}
+Empty modal slot. CRUD form fragments are loaded into #modal by HTMX and a
+success response clears it (out-of-band swap returning an empty #modal).
+
+When #modal is empty, CSS (.modal:empty rule) keeps it hidden.
+{% endcomment %}
+<div id="modal" class="modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="modal-title"></div>

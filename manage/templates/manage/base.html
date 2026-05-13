@@ -1,0 +1,31 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Manage – Kurs-Plan{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'manage/manage.css' %}">
+    <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header class="topbar">
+        <a class="topbar__brand" href="{% url 'manage:dashboard' %}">Kurs-Plan management</a>
+        <nav class="topbar__nav">
+            {% if user.is_authenticated %}
+                <span class="topbar__user">{{ user.get_username }}</span>
+                <a href="/admin/">Django admin</a>
+                <form action="{% url 'manage:logout' %}" method="post" class="topbar__logout">
+                    {% csrf_token %}
+                    <button type="submit">Log out</button>
+                </form>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'manage/_modal_shell.html' %}
+</body>
+</html>

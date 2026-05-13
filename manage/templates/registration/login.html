@@ -1,0 +1,37 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}Sign in – Manage{% endblock %}
+
+{% block content %}
+    <div class="auth-card">
+        <h1>Sign in</h1>
+
+        {% if form.non_field_errors %}
+            <ul class="errors">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <p>
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </p>
+            <p>
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </p>
+            <button type="submit">Sign in</button>
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+{% endblock %}

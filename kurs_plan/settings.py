@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'courses',
     'specializations',
     'planner',
+    'manage',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +119,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# Authentication redirects for the custom management UI.
+LOGIN_URL = 'manage:login'
+LOGIN_REDIRECT_URL = 'manage:dashboard'
+LOGOUT_REDIRECT_URL = 'manage:login'
