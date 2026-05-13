@@ -1,0 +1,86 @@
+<div class="modal__card modal__card--wide">
+    <header class="modal__header">
+        <h2 id="modal-title">{{ page_title }}</h2>
+    </header>
+    <form method="post" action="{{ form_action }}"
+          hx-post="{{ form_action }}" hx-target="#modal" hx-swap="innerHTML">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <ul class="errors">
+                {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+        {% include 'manage/partials/_field.html' with field=form.name %}
+        {% include 'manage/partials/_field.html' with field=form.description %}
+        {% include 'manage/partials/_field.html' with field=form.active layout='check' %}
+
+        <fieldset class="formset">
+            <legend>Module requirements</legend>
+            {{ requirement_formset.management_form }}
+            {% if requirement_formset.non_form_errors %}
+                <ul class="errors">
+                    {% for error in requirement_formset.non_form_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <table class="formset-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Required CP</th>
+                        <th>Order</th>
+                        <th aria-label="Delete row"></th>
+                    </tr>
+                </thead>
+                <tbody id="requirements-rows">
+                    {% for row_form in requirement_formset.forms %}
+                        {% include 'manage/partials/requirement_row.html' with form=row_form %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" class="btn btn--secondary btn--sm"
+                    data-add-formset-row
+                    data-formset-prefix="requirements"
+                    data-formset-target="#requirements-rows"
+                    data-formset-template="#empty-requirement-row">
+                Add requirement row
+            </button>
+            <template id="empty-requirement-row">
+                {% include 'manage/partials/requirement_row.html' with form=requirement_formset.empty_form %}
+            </template>
+        </fieldset>
+
+        <fieldset class="formset">
+            <legend>Additional requirement rules</legend>
+            {{ rule_formset.management_form }}
+            {% if rule_formset.non_form_errors %}
+                <ul class="errors">
+                    {% for error in rule_formset.non_form_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <div id="rules-rows" class="formset-stack">
+                {% for row_form in rule_formset.forms %}
+                    {% include 'manage/partials/rule_row.html' with form=row_form %}
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm"
+                    data-add-formset-row
+                    data-formset-prefix="rules"
+                    data-formset-target="#rules-rows"
+                    data-formset-template="#empty-rule-row">
+                Add rule
+            </button>
+            <template id="empty-rule-row">
+                {% include 'manage/partials/rule_row.html' with form=rule_formset.empty_form %}
+            </template>
+        </fieldset>
+
+        <div class="modal__actions">
+            <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+            <button type="submit" class="btn btn--primary">Save</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,27 @@
+<div class="modal__card">
+    <header class="modal__header">
+        <h2 id="modal-title">{{ page_title }}</h2>
+    </header>
+    <form method="post" action="{{ form_action }}"
+          hx-post="{{ form_action }}" hx-target="#modal" hx-swap="innerHTML">
+        {% csrf_token %}
+        <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+        {% if protected_objects %}
+            <div class="errors">
+                <p><strong>Cannot delete:</strong> this item is still referenced by:</p>
+                <ul>
+                    {% for protected in protected_objects %}
+                        <li>{{ protected }}</li>
+                    {% endfor %}
+                </ul>
+                <p>Reassign or remove those first, then try again.</p>
+            </div>
+        {% endif %}
+        <div class="modal__actions">
+            <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+            {% if not protected_objects %}
+                <button type="submit" class="btn btn--danger">Delete</button>
+            {% endif %}
+        </div>
+    </form>
+</div>

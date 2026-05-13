@@ -7,32 +7,9 @@
     <p class="page-subtitle">Manage the data used by the specialization checker.</p>
 
     <div class="dashboard">
-        <section class="box" id="box-categories" aria-labelledby="box-categories-title">
-            <header class="box__header">
-                <h2 class="box__title" id="box-categories-title">Course categories</h2>
-            </header>
-            <p class="box__placeholder">List and actions will appear here in step 3.</p>
-        </section>
-
-        <section class="box" id="box-modules" aria-labelledby="box-modules-title">
-            <header class="box__header">
-                <h2 class="box__title" id="box-modules-title">Modules</h2>
-            </header>
-            <p class="box__placeholder">List and actions will appear here in step 3.</p>
-        </section>
-
-        <section class="box" id="box-courses" aria-labelledby="box-courses-title">
-            <header class="box__header">
-                <h2 class="box__title" id="box-courses-title">Courses</h2>
-            </header>
-            <p class="box__placeholder">List and actions will appear here in step 3.</p>
-        </section>
-
-        <section class="box" id="box-specializations" aria-labelledby="box-specializations-title">
-            <header class="box__header">
-                <h2 class="box__title" id="box-specializations-title">Specializations</h2>
-            </header>
-            <p class="box__placeholder">List and actions will appear here in step 4.</p>
-        </section>
+        {% include 'manage/_box.html' with title='Course categories' box_id='box-categories' list_template='manage/partials/list_categories.html' items=categories add_url_name='manage:category_add' add_label='Add category' %}
+        {% include 'manage/_box.html' with title='Modules' box_id='box-modules' list_template='manage/partials/list_modules.html' items=modules add_url_name='manage:module_add' add_label='Add module' %}
+        {% include 'manage/_box.html' with title='Courses' box_id='box-courses' list_template='manage/partials/list_courses.html' items=courses add_url_name='manage:course_add' add_label='Add course' %}
+        {% include 'manage/_box.html' with title='Specializations' box_id='box-specializations' list_template='manage/partials/list_specializations.html' items=specializations add_url_name='manage:specialization_add' add_label='Add specialization' %}
     </div>
 {% endblock %}

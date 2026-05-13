@@ -1,0 +1,8 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}{{ page_title }} – Manage{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'manage:dashboard' %}">&larr; Back to dashboard</a></p>
+    {% include form_fragment_template %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% if items %}
+    <table class="list-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th class="num">Order</th>
+                <th>Active</th>
+                <th class="actions" aria-label="Actions"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in items %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td class="num">{{ category.display_order }}</td>
+                    <td>{% if category.active %}Yes{% else %}No{% endif %}</td>
+                    <td class="actions">
+                        <button type="button" class="btn btn--link"
+                                hx-get="{% url 'manage:category_edit' category.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Edit {{ category.name }}">Edit</button>
+                        <button type="button" class="btn btn--link btn--danger-link"
+                                hx-get="{% url 'manage:category_delete' category.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Delete {{ category.name }}">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="box__placeholder">No course categories yet.</p>
+{% endif %}

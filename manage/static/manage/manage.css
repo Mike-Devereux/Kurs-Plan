@@ -117,6 +117,338 @@ a {
     margin: 0;
 }
 
+.box__list {
+    /* OOB swap target wrapper; transparent on its own. */
+}
+
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.list-table th,
+.list-table td {
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid #eaeef2;
+    vertical-align: top;
+}
+
+.list-table th {
+    font-weight: 600;
+    background: #f6f8fa;
+    color: #57606a;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.list-table th.num,
+.list-table td.num {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.list-table th.actions,
+.list-table td.actions {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+}
+
+.list-table td.actions .btn + .btn {
+    margin-left: 0.25rem;
+}
+
+/* Buttons ------------------------------------------------------------------ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    background: #f6f8fa;
+    color: #1f2328;
+    font: inherit;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #eaeef2;
+}
+
+.btn:focus-visible {
+    outline: 2px solid #0969da;
+    outline-offset: 2px;
+}
+
+.btn--primary {
+    background: #0969da;
+    border-color: #0969da;
+    color: white;
+}
+
+.btn--primary:hover {
+    background: #0758b6;
+    border-color: #0758b6;
+}
+
+.btn--secondary {
+    background: white;
+    border-color: #d1d5da;
+}
+
+.btn--secondary:hover {
+    background: #f6f8fa;
+}
+
+.btn--danger {
+    background: #cf222e;
+    border-color: #cf222e;
+    color: white;
+}
+
+.btn--danger:hover {
+    background: #a40e26;
+    border-color: #a40e26;
+}
+
+.btn--link {
+    background: transparent;
+    border: none;
+    color: #0969da;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.85rem;
+}
+
+.btn--link:hover {
+    background: #eaeef2;
+}
+
+.btn--danger-link {
+    color: #cf222e;
+}
+
+.btn--sm {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Form fields -------------------------------------------------------------- */
+
+.form-field {
+    margin-bottom: 0.85rem;
+}
+
+.form-field > label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field input[type="email"],
+.form-field input[type="password"],
+.form-field textarea,
+.form-field select {
+    width: 100%;
+    padding: 0.45rem;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    font: inherit;
+    background: white;
+}
+
+.form-field textarea {
+    min-height: 4rem;
+    resize: vertical;
+}
+
+.form-field--check > label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.form-field--check input[type="checkbox"] {
+    margin: 0;
+}
+
+.form-field ul {
+    list-style: none;
+    padding: 0.4rem 0.5rem;
+    margin: 0;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    background: white;
+    max-height: 12rem;
+    overflow-y: auto;
+}
+
+.form-field ul li {
+    padding: 0.15rem 0;
+}
+
+.form-field ul li label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+.form-help {
+    display: block;
+    color: #6a737d;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+/* Modal header / actions / wide-card --------------------------------------- */
+
+.modal__card--wide {
+    width: min(720px, 100%);
+}
+
+.modal__header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eaeef2;
+}
+
+.modal__header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eaeef2;
+}
+
+/* Inline formsets --------------------------------------------------------- */
+
+.formset {
+    border: 1px solid #d1d5da;
+    border-radius: 0.375rem;
+    padding: 0.85rem 1rem;
+    margin: 1rem 0;
+}
+
+.formset > legend {
+    padding: 0 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1f2328;
+}
+
+.formset > button {
+    margin-top: 0.5rem;
+}
+
+.formset-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5rem;
+}
+
+.formset-table th,
+.formset-table td {
+    text-align: left;
+    padding: 0.35rem 0.4rem;
+    vertical-align: top;
+}
+
+.formset-table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #57606a;
+    font-weight: 600;
+}
+
+.formset-table .formset-row__delete {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+    padding-top: 0.6rem;
+}
+
+.formset-row select,
+.formset-row input[type="text"],
+.formset-row input[type="number"] {
+    width: 100%;
+    padding: 0.35rem 0.4rem;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    font: inherit;
+}
+
+.formset-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.formset-row--card {
+    border: 1px solid #eaeef2;
+    border-radius: 0.375rem;
+    padding: 0.75rem 0.9rem;
+    background: #fafbfc;
+}
+
+.formset-row__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.formset-row__grid > .form-field {
+    margin-bottom: 0;
+}
+
+.formset-row__footer {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.formset-row__footer .form-field {
+    margin-bottom: 0;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .modal {
     position: fixed;
     inset: 0;

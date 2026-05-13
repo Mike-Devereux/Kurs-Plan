@@ -1,0 +1,23 @@
+<tr class="formset-row">
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    <td>
+        {{ form.module }}
+        {% for error in form.module.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </td>
+    <td>
+        {{ form.required_credit_points }}
+        {% for error in form.required_credit_points.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </td>
+    <td>
+        {{ form.display_order }}
+        {% for error in form.display_order.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </td>
+    <td class="formset-row__delete">
+        {% if form.DELETE %}
+            <label aria-label="Mark this row for deletion">
+                {{ form.DELETE }}
+                <span class="visually-hidden">Delete</span>
+            </label>
+        {% endif %}
+    </td>
+</tr>

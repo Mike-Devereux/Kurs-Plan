@@ -1,0 +1,26 @@
+<div class="formset-row formset-row--card">
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    {% if form.non_field_errors %}
+        <ul class="errors">
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+    {% endif %}
+    <div class="formset-row__grid">
+        {% include 'manage/partials/_field.html' with field=form.name %}
+        {% include 'manage/partials/_field.html' with field=form.rule_type %}
+        {% include 'manage/partials/_field.html' with field=form.required_credit_points %}
+    </div>
+    {% include 'manage/partials/_field.html' with field=form.modules_included %}
+    {% include 'manage/partials/_field.html' with field=form.description %}
+    <div class="formset-row__footer">
+        {% include 'manage/partials/_field.html' with field=form.active layout='check' %}
+        {% if form.DELETE %}
+            <div class="form-field form-field--check">
+                <label>
+                    {{ form.DELETE }}
+                    <span>Remove this rule</span>
+                </label>
+            </div>
+        {% endif %}
+    </div>
+</div>

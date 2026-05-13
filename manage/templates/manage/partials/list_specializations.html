@@ -1,0 +1,35 @@
+{% if items %}
+    <table class="list-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th class="num">Module reqs</th>
+                <th class="num">Rules</th>
+                <th>Active</th>
+                <th class="actions" aria-label="Actions"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for spec in items %}
+                <tr>
+                    <td>{{ spec.name }}</td>
+                    <td class="num">{{ spec.requirement_count }}</td>
+                    <td class="num">{{ spec.rule_count }}</td>
+                    <td>{% if spec.active %}Yes{% else %}No{% endif %}</td>
+                    <td class="actions">
+                        <button type="button" class="btn btn--link"
+                                hx-get="{% url 'manage:specialization_edit' spec.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Edit {{ spec.name }}">Edit</button>
+                        <button type="button" class="btn btn--link btn--danger-link"
+                                hx-get="{% url 'manage:specialization_delete' spec.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Delete {{ spec.name }}">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="box__placeholder">No specializations yet.</p>
+{% endif %}

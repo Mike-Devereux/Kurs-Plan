@@ -1,0 +1,31 @@
+{% if items %}
+    <table class="list-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Active</th>
+                <th class="actions" aria-label="Actions"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for module in items %}
+                <tr>
+                    <td>{{ module.name }}</td>
+                    <td>{% if module.active %}Yes{% else %}No{% endif %}</td>
+                    <td class="actions">
+                        <button type="button" class="btn btn--link"
+                                hx-get="{% url 'manage:module_edit' module.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Edit {{ module.name }}">Edit</button>
+                        <button type="button" class="btn btn--link btn--danger-link"
+                                hx-get="{% url 'manage:module_delete' module.pk %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Delete {{ module.name }}">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="box__placeholder">No modules yet.</p>
+{% endif %}
