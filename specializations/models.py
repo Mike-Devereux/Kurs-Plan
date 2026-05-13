@@ -63,6 +63,13 @@ class AdditionalRequirementRule(models.Model):
         max_length=64,
         choices=AdditionalRequirementRuleType.choices,
     )
+    modules_included = models.ManyToManyField(
+        'courses.Module',
+        related_name='additional_requirement_rules',
+        blank=True,
+        verbose_name='modules included',
+        help_text='Modules whose course credits this rule aggregates over.',
+    )
     required_credit_points = models.DecimalField(
         max_digits=5,
         decimal_places=2,
