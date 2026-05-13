@@ -1,0 +1,34 @@
+{% if categories_with_courses %}
+    <div class="catalog">
+        {% for category, courses in categories_with_courses.items %}
+            <article class="catalog__category" aria-labelledby="cat-{{ category.pk }}-title">
+                <header class="catalog__category-header">
+                    <h3 id="cat-{{ category.pk }}-title" class="catalog__category-title">
+                        {{ category.name }}
+                    </h3>
+                    <span class="catalog__count" aria-hidden="true">{{ courses|length }}</span>
+                </header>
+                <ul class="catalog__list" role="list">
+                    {% for course in courses %}
+                        <li class="catalog__item">
+                            <label class="course">
+                                <input type="checkbox"
+                                       name="courses"
+                                       value="{{ course.pk }}"
+                                       data-course-code="{{ course.code }}"
+                                       data-course-title="{{ course.title }}"
+                                       data-course-cp="{{ course.credit_points|floatformat:'-2' }}"
+                                       {% if course.pk in selected_course_ids %}checked{% endif %}>
+                                <span class="course__code">{{ course.code }}</span>
+                                <span class="course__title">{{ course.title }}</span>
+                                <span class="course__cp">{{ course.credit_points|floatformat:'-2' }} CP</span>
+                            </label>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="placeholder">No courses are available yet. Please come back later.</p>
+{% endif %}

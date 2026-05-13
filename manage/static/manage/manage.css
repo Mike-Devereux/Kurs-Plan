@@ -71,7 +71,7 @@ a {
 }
 
 .main {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 2rem auto;
     padding: 0 1.5rem;
 }
@@ -87,7 +87,7 @@ a {
 
 .dashboard {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1.5rem;
 }
 
@@ -391,6 +391,35 @@ a {
     white-space: nowrap;
     text-align: right;
     padding-top: 0.6rem;
+}
+
+.formset-row__remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: #57606a;
+    cursor: pointer;
+}
+
+.formset-row__remove input[type="checkbox"] {
+    margin: 0;
+}
+
+.formset-row__remove:has(input:checked) {
+    color: #cf222e;
+    font-weight: 600;
+}
+
+.formset-row:has(.formset-row__remove input:checked) td {
+    background: #fff5f5;
+}
+
+.formset-row:has(.formset-row__remove input:checked) td:not(.formset-row__delete) {
+    text-decoration: line-through;
+    color: #8b0000;
+    opacity: 0.7;
 }
 
 .formset-row select,

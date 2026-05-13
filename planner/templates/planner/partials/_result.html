@@ -1,0 +1,154 @@
+<h2 id="result-heading" class="section-title">Result</h2>
+
+<div class="result__card result__card--{{ result.status }}">
+    {% if result.status == 'pending' %}
+        <p class="result__headline">Evaluation engine not yet implemented.</p>
+    {% elif result.status == 'success' %}
+        <p class="result__headline">Requirements satisfied.</p>
+    {% else %}
+        <p class="result__headline">Requirements not satisfied.</p>
+    {% endif %}
+
+    <dl class="result__meta">
+        <div>
+            <dt>Specialization</dt>
+            <dd>{{ result.specialization.name }}</dd>
+        </div>
+        <div>
+            <dt>Courses selected</dt>
+            <dd>{{ result.selected_courses|length }}</dd>
+        </div>
+        <div>
+            <dt>Total credit points</dt>
+            <dd>{{ result.total_credit_points|floatformat:'-2' }}</dd>
+        </div>
+    </dl>
+
+    {% if result.messages %}
+        <ul class="result__messages">
+            {% for message in result.messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if result.module_statuses %}
+        <details class="result__details">
+            <summary>Module requirements</summary>
+            <table class="result__table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Required CP</th>
+                        <th>Achieved CP</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result.module_statuses %}
+                        <tr>
+                            <td>{{ row.module.name }}</td>
+                            <td>{{ row.required_credit_points|floatformat:'-2' }}</td>
+                            <td>{{ row.achieved_credit_points|floatformat:'-2' }}</td>
+                            <td>{% if row.satisfied %}Met{% else %}Not met{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+    {% endif %}
+
+    {% if result.additional_rule_statuses %}
+        <details class="result__details">
+            <summary>Additional rules</summary>
+            <table class="result__table">
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Type</th>
+                        <th>Modules</th>
+                        <th>Required CP</th>
+                        <th>Achieved CP</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result.additional_rule_statuses %}
+                        <tr>
+                            <td>{{ row.rule.name }}</td>
+                            <td>{{ row.rule_type_label }}</td>
+                            <td>
+                                {% for m in row.modules_included %}
+                                    {{ m.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ row.required_credit_points|floatformat:'-2' }}</td>
+                            <td>{{ row.achieved_credit_points|floatformat:'-2' }}</td>
+                            <td>{% if row.satisfied %}Met{% else %}Not met{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+    {% endif %}
+
+    {% if result.allocation %}
+        <details class="result__details">
+            <summary>Allocation (best or chosen)</summary>
+            <table class="result__table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Module</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in result.allocation %}
+                        <tr>
+                            <td>{{ entry.course.code }} — {{ entry.course.title }}</td>
+                            <td>{% if entry.module %}{{ entry.module.name }}{% else %}<em>Unused</em>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+    {% endif %}
+
+    {% if result.unused_courses %}
+        <details class="result__details">
+            <summary>Unused courses</summary>
+            <ul class="result__courses">
+                {% for course in result.unused_courses %}
+                    <li>
+                        <span class="result__course-code">{{ course.code }}</span>
+                        <span class="result__course-title">{{ course.title }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </details>
+    {% endif %}
+
+    {% if result.failure_reasons %}
+        <details class="result__details result__details--failure">
+            <summary>What did not match</summary>
+            <ul class="result__messages">
+                {% for fr in result.failure_reasons %}
+                    <li>{{ fr.message }}</li>
+                {% endfor %}
+            </ul>
+        </details>
+    {% endif %}
+
+    <details class="result__details">
+        <summary>Selected courses</summary>
+        <ul class="result__courses">
+            {% for course in result.selected_courses %}
+                <li>
+                    <span class="result__course-code">{{ course.code }}</span>
+                    <span class="result__course-title">{{ course.title }}</span>
+                    <span class="result__course-cp">{{ course.credit_points|floatformat:'-2' }} CP</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </details>
+</div>

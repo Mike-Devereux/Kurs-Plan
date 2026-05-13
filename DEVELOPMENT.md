@@ -273,10 +273,9 @@ The add/edit workflow should change depending on the object type, so:
 1. Project setup
 2. Core models
 3. Admin management
-4. Student course selection page
+4. Student course selection + result page
 5. Evaluation engine
-6. Result page
-7. Automated tests
+6. Automated tests
 
 ---
 

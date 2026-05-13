@@ -1,0 +1,52 @@
+{% extends 'planner/base_student.html' %}
+
+{% block title %}Specialization checker – Kurs-Plan{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Specialization checker</h1>
+    <p class="page-subtitle">
+        Choose your target specialization, pick the courses you plan to take,
+        then submit to see whether they satisfy the specialization's
+        requirements.
+    </p>
+
+    <form method="post" action="{% url 'planner:checker' %}" class="checker"
+          data-checker-form>
+        {% csrf_token %}
+
+        <section class="checker__specialization" aria-labelledby="spec-heading">
+            <h2 id="spec-heading" class="section-title">1. Specialization</h2>
+            <div class="form-field">
+                <label for="{{ form.specialization.id_for_label }}">
+                    {{ form.specialization.label }}
+                </label>
+                {{ form.specialization }}
+                {% for error in form.specialization.errors %}
+                    <small class="error">{{ error }}</small>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="checker__catalog" aria-labelledby="catalog-heading">
+            <h2 id="catalog-heading" class="section-title">2. Choose your courses</h2>
+            {% for error in form.courses.errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+            {% include 'planner/partials/_catalog_by_category.html' %}
+        </section>
+
+        <aside class="checker__selected" aria-labelledby="selected-heading">
+            {% include 'planner/partials/_selected_panel.html' %}
+        </aside>
+
+        <div class="checker__actions">
+            <button type="submit" class="btn btn--primary">Check selection</button>
+        </div>
+    </form>
+
+    {% if result %}
+        <section class="result" aria-labelledby="result-heading">
+            {% include 'planner/partials/_result.html' %}
+        </section>
+    {% endif %}
+{% endblock %}

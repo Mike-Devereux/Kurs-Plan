@@ -204,6 +204,8 @@ Because a course may count toward multiple modules, the system must test possibl
 
 The tool should select the allocation that best satisfies the specialization requirements.
 
+Course credit points can be allocated to modules that already have point requirements satisfied, in order to meet AddtionalRequirementRules
+
 ---
 
 # 7. Successful Result Output
