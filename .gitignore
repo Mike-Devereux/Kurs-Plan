@@ -1,0 +1,7 @@
+# SQLite (project root)
+db.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
