@@ -1,0 +1,17 @@
+{% load webtool_template_tags %}
+{% if webtool_banner_logo_left or webtool_banner_logo_right %}
+<div class="{% wt_class 'page-banner' %}" aria-hidden="true">
+    <div class="{% wt_class 'page-banner-inner' %}">
+        <div class="{% wt_class 'page-banner-left' %}">
+            {% if webtool_banner_logo_left %}
+                <img class="{% wt_class 'page-banner-left-logo' %}" src="{{ webtool_banner_logo_left }}" alt="">
+            {% endif %}
+        </div>
+        <div class="{% wt_class 'page-banner-right' %}">
+            {% if webtool_banner_logo_right %}
+                <img class="{% wt_class 'page-banner-logo' %}" src="{{ webtool_banner_logo_right }}" alt="">
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

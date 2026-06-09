@@ -1,0 +1,17 @@
+{% extends "webtool_template/base_auth.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <h1>Login</h1>
+    <nav>
+        <a href="{{ home_url|default:'/' }}">Home</a> |
+        <a href="{{ register_url|default:'/register/' }}">Register</a>
+    </nav>
+    <form class="webtool-auth-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="webtool-auth-submit" type="submit">Login</button>
+    </form>
+    <p><a href="{{ password_reset_url|default:'/password-reset/' }}">Forgot password?</a></p>
+{% endblock %}

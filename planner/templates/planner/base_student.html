@@ -1,19 +1,21 @@
-{% load static %}<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Kurs-Plan{% endblock %}</title>
+{% extends 'webtool_template/base.html' %}
+{% load static %}
+
+{% block title %}{% block student_title %}Kurs-Plan{% endblock %}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'webtool_template/css/components.css' %}">
     <link rel="stylesheet" href="{% static 'planner/checker.css' %}">
+{% endblock %}
+
+{% block extra_js %}
     <script src="{% static 'planner/checker.js' %}" defer></script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <a class="skip-link" href="#main">Skip to main content</a>
-    <header class="topbar">
-        <a class="topbar__brand" href="{% url 'planner:checker' %}">Kurs-Plan</a>
-    </header>
-    <main id="main" class="main">
-        {% block content %}{% endblock %}
-    </main>
-</body>
-</html>
+    <div id="main">
+        {% block student_content %}{% endblock %}
+    </div>
+    {% include 'webtool_template/footer_gap.html' %}
+{% endblock %}

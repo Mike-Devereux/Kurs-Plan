@@ -1,0 +1,16 @@
+TEMPLATE_EXPORT.md
+pyproject.toml
+src/webtool_template/__init__.py
+src/webtool_template/apps.py
+src/webtool_template/bootstrap.py
+src/webtool_template/compat.py
+src/webtool_template/conf.py
+src/webtool_template/middleware.py
+src/webtool_template/sanitizer.py
+src/webtool_template.egg-info/PKG-INFO
+src/webtool_template.egg-info/SOURCES.txt
+src/webtool_template.egg-info/dependency_links.txt
+src/webtool_template.egg-info/requires.txt
+src/webtool_template.egg-info/top_level.txt
+src/webtool_template/templatetags/__init__.py
+src/webtool_template/templatetags/webtool_template_tags.py

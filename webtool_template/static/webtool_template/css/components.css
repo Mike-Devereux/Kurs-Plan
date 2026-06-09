@@ -1,0 +1,52 @@
+/* Optional UI components extracted from Chem-E pages. */
+
+.webtool-footer-gap {
+    margin-bottom: 40px;
+}
+
+.webtool-file-upload-input,
+.file-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.webtool-submit-button {
+    display: inline-flex !important;
+    width: fit-content !important;
+    max-width: max-content;
+    white-space: nowrap;
+}
+
+.webtool-submit-wrap {
+    display: inline-block;
+}
+
+.webtool-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.webtool-modal-overlay.is-open {
+    display: flex;
+}
+
+.webtool-modal-panel {
+    width: min(700px, 90vw);
+    max-height: 80vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 6px;
+    padding: 16px;
+    box-sizing: border-box;
+}

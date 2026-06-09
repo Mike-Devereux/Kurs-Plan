@@ -10,10 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+WEBTOOL_TEMPLATE_ROOT = BASE_DIR / 'webtool_template'
+
+# Local package (also declared in pyproject.toml for uv).
+sys.path.insert(0, str(WEBTOOL_TEMPLATE_ROOT / 'src'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'webtool_template.apps.WebtoolTemplateConfig',
     'courses',
     'specializations',
     'planner',
@@ -58,13 +64,18 @@ ROOT_URLCONF = 'kurs_plan.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',
+            WEBTOOL_TEMPLATE_ROOT / 'templates',
+            WEBTOOL_TEMPLATE_ROOT / 'components',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'kurs_plan.context_processors.webtool_shell',
             ],
         },
     },
@@ -119,6 +130,27 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    WEBTOOL_TEMPLATE_ROOT / 'static',
+]
+
+WEBTOOL_TEMPLATE = {
+    'PREFIX': 'kursplan',
+    'LAYOUT_MODE': 'template',
+    'FOOTER_TEXT': 'Kurs-Plan — University of Basel',
+    'BANNER_LOGOS': {
+        'left': '/static/webtool_template/logos/uni-basel-logo.svg',
+    },
+    'LOGOUT_URL': '/manage/logout/',
+    'HOME_URL_RESOLVER': 'kurs_plan.navigation.home_url_for_request',
+    'FONT_URLS': [
+        (
+            'https://fonts.googleapis.com/css2?family=Inter:wght@400;600'
+            '&family=PT+Serif:wght@400;700&display=swap'
+        ),
+    ],
+}
 
 
 # Authentication redirects for the custom management UI.

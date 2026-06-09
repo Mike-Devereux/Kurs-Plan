@@ -1,0 +1,13 @@
+{% load webtool_template_tags %}
+<div class="{% wt_class 'global-header' %}">
+    <div class="{% wt_class 'global-header-inner' %}">
+        <nav class="{% wt_class 'global-header-links' %}">
+            <a class="{% wt_class 'global-header-home' %}" href="{{ webtool_home_url }}">Home</a>
+            {% if user.is_authenticated %}
+                <a class="{% wt_class 'global-header-logout' %}" href="{{ webtool_logout_url }}">Logout</a>
+            {% else %}
+                <a class="{% wt_class 'global-header-logout' %}" href="{% url 'manage:login' %}">Admin</a>
+            {% endif %}
+        </nav>
+    </div>
+</div>

@@ -2,7 +2,7 @@
 
 {% block title %}{{ page_title }} – Manage{% endblock %}
 
-{% block content %}
+{% block manage_content %}
     <p><a href="{% url 'manage:dashboard' %}">&larr; Back to dashboard</a></p>
     {% include form_fragment_template %}
 {% endblock %}

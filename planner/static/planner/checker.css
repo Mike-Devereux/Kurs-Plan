@@ -5,11 +5,21 @@
 }
 
 body {
-    margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: #f4f5f7;
     color: #1f2328;
     line-height: 1.4;
+}
+
+[class$="-page-content"] {
+    padding-left: var(--kursplan-content-margin);
+    padding-right: var(--kursplan-content-margin);
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 a {
@@ -19,35 +29,18 @@ a {
 .skip-link {
     position: absolute;
     top: -3rem;
-    left: 1rem;
-    background: #1f2328;
+    left: var(--kursplan-content-margin);
+    background: var(--kursplan-header-bg);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
     text-decoration: none;
     transition: top 0.15s ease;
+    z-index: 10001;
 }
 
 .skip-link:focus {
-    top: 1rem;
-}
-
-.topbar {
-    background: #1f2328;
-    color: white;
-    padding: 0.75rem 1.5rem;
-}
-
-.topbar__brand {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.main {
-    max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    top: calc(var(--kursplan-header-height) + 0.5rem);
 }
 
 .page-title {

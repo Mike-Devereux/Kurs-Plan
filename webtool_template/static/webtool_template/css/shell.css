@@ -1,0 +1,112 @@
+/* Shell layout — class names use the host project's PREFIX (default: webtool).
+   When LAYOUT_MODE=template, pair with inline :root vars from wt.root_style. */
+
+body {
+    margin: 0;
+    max-width: none !important;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.webtool-global-header,
+[class$="-global-header"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9999;
+}
+
+.webtool-global-header-inner,
+[class$="-global-header-inner"] {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.webtool-global-header-links,
+[class$="-global-header-links"] {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.webtool-global-header-home,
+.webtool-global-header-logout,
+[class$="-global-header-home"],
+[class$="-global-header-logout"] {
+    color: #ffffff;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.webtool-global-header-home:hover,
+.webtool-global-header-home:focus,
+.webtool-global-header-logout:hover,
+.webtool-global-header-logout:focus,
+[class$="-global-header-home"]:hover,
+[class$="-global-header-home"]:focus,
+[class$="-global-header-logout"]:hover,
+[class$="-global-header-logout"]:focus {
+    text-decoration: underline;
+}
+
+.webtool-page-banner,
+[class$="-page-banner"] {
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+.webtool-page-banner-inner,
+[class$="-page-banner-inner"] {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.webtool-page-banner-left,
+.webtool-page-banner-right,
+[class$="-page-banner-left"],
+[class$="-page-banner-right"] {
+    display: flex;
+    align-items: center;
+}
+
+.webtool-page-banner-left-logo,
+.webtool-page-banner-logo,
+[class$="-page-banner-left-logo"],
+[class$="-page-banner-logo"] {
+    display: block;
+    height: 73px;
+    width: auto;
+}
+
+.webtool-global-footer,
+[class$="-global-footer"] {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    margin-top: auto;
+}
+
+.webtool-global-footer-text,
+[class$="-global-footer-text"] {
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.webtool-page-content,
+[class$="-page-content"] {
+    flex: 1 1 auto;
+}

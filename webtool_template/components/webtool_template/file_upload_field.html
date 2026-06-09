@@ -1,0 +1,12 @@
+{# Optional file-upload field widget.
+   Variables: input_id, input_name, trigger_label, empty_label, has_existing_upload #}
+<label for="{{ input_id }}">{{ field_label|default:"Upload file" }}</label>
+<input
+    id="{{ input_id }}"
+    name="{{ input_name }}"
+    type="file"
+    class="webtool-file-upload-input file-upload-input"
+    {% if has_existing_upload %}data-has-existing-upload="1"{% endif %}
+>
+<button type="button" data-upload-trigger="{{ input_id }}">{{ trigger_label|default:"Choose file" }}</button>
+<span id="{{ input_id }}_name"><i>{{ empty_label|default:"No file selected" }}</i></span>

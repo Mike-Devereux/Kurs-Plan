@@ -1,0 +1,132 @@
+# Template Export — webtool_template
+
+This document describes what was extracted from Chem-E into the standalone `webtool_template` package. **No production Chem-E code was modified.** The package lives entirely under `webtool_template/` at the repository root.
+
+## Source → Package mapping
+
+| Chem-E source | webtool_template destination | Notes |
+|---------------|------------------------------|-------|
+| `core/middleware.py` | `src/webtool_template/middleware.py` | Parameterized as `GlobalShellMiddleware`; preserves injection behavior |
+| `core/middleware.py` `HEADER_STYLE_BLOCK` | `src/webtool_template/conf.py` → `build_shell_stylesheet()` | CSS vars + layout rules generated from config |
+| `core/middleware.py` `_home_href_for` | `src/webtool_template/compat.py` → `chem_e_home_url` | Opt-in via `PRESET: "chem_e"` |
+| `core/html_sanitizer.py` | `src/webtool_template/sanitizer.py` | Unchanged allowlist sanitizer |
+| Inline auth CSS (login, register, password-reset) | `static/webtool_template/css/auth.css` | Consolidated shared rules |
+| Middleware shell CSS | `static/webtool_template/css/shell.css` + `conf.build_shell_stylesheet()` | Static file for template mode; inline for middleware mode |
+| Status colors (summary, submission detail) | `static/webtool_template/css/status.css` | `.cell-*`, `.status-*`, `.pending-grading` |
+| File upload widget CSS | `static/webtool_template/css/components.css` | `.file-upload-input`, footer gap, modal shell |
+| File upload JS | `static/webtool_template/js/file-upload.js` | Extracted from tutorial/exercise templates |
+| CSRF cookie helper | `static/webtool_template/js/csrf.js` | Extracted from supervisor tree editor |
+| Auth HTML shells | `templates/webtool_template/auth/*.html` | Extend `base_auth.html` |
+| Global chrome HTML | `templates/webtool_template/partials/*.html` | Header, banner, footer |
+| Page layout | `templates/webtool_template/base.html` | Template-inheritance alternative to middleware |
+| Reusable includes | `components/webtool_template/*.html` | Back link, file upload, status badge, modal, footer gap |
+| Render helper | `src/webtool_template/bootstrap.py` | `render_page()`, `shell_context()` |
+| Theme settings | `src/webtool_template/conf.py` | `WEBTOOL_TEMPLATE` dict + `CHEM_E_PRESET` |
+
+## What was **not** extracted (stays in Chem-E)
+
+- All course/tutorial/exercise/supervisor business templates (`core/templates/core/*`)
+- `core/views.py`, `core/models.py`, `core/forms.py` domain logic
+- `supervisor_tree.html` Quill editor and tree API JavaScript
+- Grading tables, archive workflows, submission detail markup
+- Password reset email body copy (`password_reset_email.html` text)
+- University-specific page copy (German labels, course navigation)
+
+## Package layout
+
+```
+webtool_template/
+├── pyproject.toml
+├── TEMPLATE_EXPORT.md          ← this file
+├── MIGRATION_GUIDE.md
+├── examples/
+│   └── USAGE.md
+├── src/webtool_template/
+│   ├── __init__.py
+│   ├── apps.py
+│   ├── bootstrap.py            ← render helpers
+│   ├── compat.py               ← Chem-E preset helpers
+│   ├── conf.py                 ← theme tokens + CSS generation
+│   ├── middleware.py           ← GlobalShellMiddleware
+│   ├── sanitizer.py
+│   └── templatetags/
+│       └── webtool_template_tags.py
+├── templates/webtool_template/
+│   ├── base.html
+│   ├── base_auth.html
+│   ├── partials/
+│   ├── auth/
+│   └── examples/
+├── static/webtool_template/
+│   ├── css/
+│   ├── js/
+│   └── logos/
+└── components/webtool_template/
+    ├── back_link.html
+    ├── file_upload_field.html
+    ├── footer_gap.html
+    ├── status_badge.html
+    └── modal_overlay.html
+```
+
+## Behavior preservation
+
+When Chem-E adopts the package with:
+
+```python
+WEBTOOL_TEMPLATE = {
+    "PRESET": "chem_e",
+    "LAYOUT_MODE": "middleware",
+}
+```
+
+and replaces `core.middleware.GlobalHeaderBarMiddleware` with `webtool_template.middleware.GlobalShellMiddleware`, the rendered HTML shell is equivalent to the current production middleware:
+
+- Same `chem-e-*` CSS class prefix
+- Same CSS custom property names (`--chem-e-header-height`, etc.)
+- Same header (Home / Logout), banner logos, footer text
+- Same role-aware Home URL resolution
+- Same post-render HTML injection strategy
+
+## Configuration surface
+
+| Setting key | Default | Chem-E preset |
+|-------------|---------|---------------|
+| `PREFIX` | `webtool` | `chem-e` |
+| `LAYOUT_MODE` | `middleware` | `middleware` |
+| `FOOTER_TEXT` | `""` | `Chem-E: michael.devereux@unibas.ch` |
+| `BANNER_LOGOS.left` | `""` | `/media/ui/uni-basel-logo.svg` |
+| `BANNER_LOGOS.right` | `""` | `/media/ui/DepChe_Logo_DE_Schwarz_RGB.png` |
+| `HOME_URL_RESOLVER` | `None` | `webtool_template.compat.chem_e_home_url` |
+| `LOGOUT_URL` | `/logout/` | `/logout/` |
+
+## Static assets included
+
+| File | Purpose |
+|------|---------|
+| `css/shell.css` | Header/banner/footer layout helpers |
+| `css/auth.css` | Login/register/reset form layout |
+| `css/status.css` | Graded/ungraded/missing semantic colors |
+| `css/components.css` | File upload, footer gap, modal overlay |
+| `js/file-upload.js` | Hidden file input + confirm-on-replace |
+| `js/csrf.js` | `webtoolGetCsrfToken()` |
+| `logos/uni-basel-logo.svg` | Example institution logo (copy from Chem-E media) |
+
+## Runtime dependencies
+
+- Python ≥ 3.11
+- Django ≥ 4.2 (developed against Django 6.0)
+- No npm/JavaScript build step
+- Optional CDN assets (Quill) remain in Chem-E only
+
+## Install (local path, for development)
+
+```bash
+pip install -e ./webtool_template
+```
+
+Or add to `PYTHONPATH`:
+
+```bash
+export PYTHONPATH="/path/to/Chem-E/webtool_template/src:$PYTHONPATH"
+```

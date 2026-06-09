@@ -1,0 +1,12 @@
+{% extends "webtool_template/base_auth.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <h1>Create account</h1>
+    <form class="webtool-auth-form webtool-auth-form--simple" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

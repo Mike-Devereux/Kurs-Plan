@@ -1,0 +1,8 @@
+{# Modal shell extracted from Chem-E supervisor tree content browser.
+   Variables: modal_id, modal_title, modal_body (HTML safe) #}
+<div id="{{ modal_id }}" class="webtool-modal-overlay" aria-hidden="true">
+    <div class="webtool-modal-panel">
+        {% if modal_title %}<h3>{{ modal_title }}</h3>{% endif %}
+        {{ modal_body|safe }}
+    </div>
+</div>

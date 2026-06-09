@@ -1,0 +1,71 @@
+{% load static webtool_template_tags %}
+<!DOCTYPE html>
+<html lang="en" style="{{ webtool_root_style }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ page_title|default:"" }}{% endblock %}</title>
+    {% for font_url in webtool_font_urls %}
+        <link rel="stylesheet" href="{{ font_url }}">
+    {% endfor %}
+    <link rel="stylesheet" href="{% static 'webtool_template/css/shell.css' %}">
+    <link rel="stylesheet" href="{% static 'webtool_template/css/status.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            {{ webtool_root_style }}
+        }
+        .{% wt_class "global-header" %} {
+            height: var({% wt_var "header-height" %});
+            background: var({% wt_var "header-bg" %});
+        }
+        .{% wt_class "global-header-inner" %} {
+            padding-left: var({% wt_var "content-margin" %});
+            padding-right: var({% wt_var "content-margin" %});
+        }
+        .{% wt_class "global-header-home" %},
+        .{% wt_class "global-header-logout" %} {
+            font-family: {{ webtool_config.FONT_BODY }};
+        }
+        .{% wt_class "page-banner" %} {
+            margin-top: var({% wt_var "header-height" %});
+            height: var({% wt_var "banner-height" %});
+            background: var({% wt_var "banner-bg" %});
+        }
+        .{% wt_class "page-banner-inner" %} {
+            padding-left: var({% wt_var "content-margin" %});
+            padding-right: var({% wt_var "content-margin" %});
+        }
+        .{% wt_class "global-footer" %} {
+            height: var({% wt_var "footer-height" %});
+            background: var({% wt_var "footer-bg" %});
+            padding-left: var({% wt_var "content-margin" %});
+            padding-right: var({% wt_var "content-margin" %});
+        }
+        .{% wt_class "global-footer-text" %} {
+            font-family: {{ webtool_config.FONT_BODY }};
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: {{ webtool_config.FONT_HEADING }};
+        }
+        p, li, label {
+            font-family: {{ webtool_config.FONT_BODY }};
+            font-size: {{ webtool_config.FONT_BODY_SIZE }};
+        }
+        body > :not(.{% wt_class "global-header" %}):not(.{% wt_class "page-banner" %}):not(.{% wt_class "global-footer" %}):not(.{% wt_class "page-content" %}) {
+            margin-left: var({% wt_var "content-margin" %});
+            margin-right: var({% wt_var "content-margin" %});
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% include "webtool_template/partials/header.html" %}
+    {% include "webtool_template/partials/banner.html" %}
+    <main class="{% wt_class "page-content" %}">
+        {% block content %}{% endblock %}
+    </main>
+    {% include "webtool_template/partials/footer.html" %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

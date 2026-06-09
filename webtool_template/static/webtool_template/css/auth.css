@@ -1,0 +1,61 @@
+/* Auth form layout extracted from Chem-E registration/login templates. */
+
+.webtool-auth-body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    max-width: 32rem;
+}
+
+.webtool-auth-form {
+    display: grid;
+    gap: 0.75rem 1rem;
+    max-width: 32rem;
+}
+
+.webtool-auth-form p {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.webtool-auth-form p > label {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.webtool-auth-form input,
+.webtool-auth-form button {
+    font: inherit;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.webtool-auth-form--simple {
+    gap: 0.75rem;
+}
+
+.webtool-auth-form--simple p {
+    display: block;
+}
+
+.webtool-auth-form--simple p > label {
+    text-align: left;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.webtool-errorlist,
+.errorlist {
+    color: #b00020;
+    margin: 0.25rem 0;
+    padding-left: 1rem;
+}
+
+.webtool-auth-submit {
+    width: 100%;
+    margin-top: 0.5rem;
+}

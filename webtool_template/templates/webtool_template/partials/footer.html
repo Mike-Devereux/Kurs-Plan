@@ -1,0 +1,6 @@
+{% load webtool_template_tags %}
+{% if webtool_footer_text %}
+<footer class="{% wt_class 'global-footer' %}">
+    <span class="{% wt_class 'global-footer-text' %}">{{ webtool_footer_text }}</span>
+</footer>
+{% endif %}

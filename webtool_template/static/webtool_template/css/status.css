@@ -1,0 +1,55 @@
+/* Semantic status colors used across Chem-E supervisor and student pages. */
+
+.webtool-status-graded,
+.status-graded,
+.cell-graded {
+    color: #0b6b2f;
+}
+
+.webtool-status-graded a,
+.webtool-status-graded a:visited,
+.status-graded a,
+.status-graded a:visited,
+.cell-graded a,
+.cell-graded a:visited {
+    color: #0b6b2f;
+}
+
+.webtool-status-ungraded,
+.status-ungraded,
+.cell-ungraded,
+.pending-grading {
+    color: #9c6b00;
+}
+
+.webtool-status-ungraded a,
+.webtool-status-ungraded a:visited,
+.status-ungraded a,
+.status-ungraded a:visited,
+.cell-ungraded a,
+.cell-ungraded a:visited {
+    color: #9c6b00;
+}
+
+.pending-grading {
+    color: #cc7a00;
+}
+
+.webtool-status-missing,
+.status-missing,
+.cell-missing {
+    color: #b00020;
+}
+
+.webtool-row-ungraded {
+    background: #fff3cd;
+}
+
+.webtool-table thead th {
+    background: #a5d7d2;
+}
+
+.webtool-table tbody th,
+.webtool-table tbody td {
+    background: #f0f0f0;
+}
