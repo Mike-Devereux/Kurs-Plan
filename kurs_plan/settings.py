@@ -135,6 +135,9 @@ STATICFILES_DIRS = [
     WEBTOOL_TEMPLATE_ROOT / 'static',
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 WEBTOOL_TEMPLATE = {
     'PREFIX': 'kursplan',
     'LAYOUT_MODE': 'template',

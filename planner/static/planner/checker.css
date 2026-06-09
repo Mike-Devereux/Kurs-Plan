@@ -302,15 +302,17 @@ a {
     cursor: pointer;
 }
 
-.btn--primary {
-    background: #0969da;
-    border-color: #0969da;
-    color: white;
+.checker__actions .checker__submit-btn {
+    background: #d20537;
+    border-color: #d20537;
+    color: #ffffff;
 }
 
-.btn--primary:hover {
-    background: #0758b6;
-    border-color: #0758b6;
+.checker__actions .checker__submit-btn:hover,
+.checker__actions .checker__submit-btn:focus-visible {
+    background: #2d373c;
+    border-color: #2d373c;
+    color: #ffffff;
 }
 
 /* Result card ------------------------------------------------------------- */
