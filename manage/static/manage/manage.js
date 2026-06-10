@@ -15,6 +15,7 @@ function applyBulkSelectAll(selectAll) {
     'use strict';
 
     var focusTrapHandler = null;
+    var pendingSortFocusKey = null;
 
     function getModal() {
         return document.getElementById('modal');
@@ -188,6 +189,13 @@ function applyBulkSelectAll(selectAll) {
         }
     });
 
+    document.body.addEventListener('htmx:beforeRequest', function (e) {
+        var elt = e.detail && e.detail.elt;
+        if (elt && elt.matches && elt.matches('.list-table__sort-btn')) {
+            pendingSortFocusKey = elt.getAttribute('data-sort-key');
+        }
+    });
+
     document.body.addEventListener('htmx:confirm', function (e) {
         var elt = e.detail && e.detail.elt;
         if (!elt || !elt.matches('[data-bulk-delete]')) {
@@ -207,6 +215,15 @@ function applyBulkSelectAll(selectAll) {
         if (e.target && e.target.classList && e.target.classList.contains('box__list')) {
             var box = e.target.closest('.box');
             initBulkBox(box);
+            if (e.target.id === 'box-courses-list' && pendingSortFocusKey) {
+                var sortBtn = e.target.querySelector(
+                    '.list-table__sort-btn[data-sort-key="' + pendingSortFocusKey + '"]'
+                );
+                if (sortBtn) {
+                    sortBtn.focus({ preventScroll: true });
+                }
+                pendingSortFocusKey = null;
+            }
         }
     });
 
@@ -233,5 +250,26 @@ function applyBulkSelectAll(selectAll) {
         var html = template.innerHTML.replace(/__prefix__/g, String(index));
         target.insertAdjacentHTML('beforeend', html);
         totalEl.value = String(index + 1);
+
+        if (prefix === 'requirements') {
+            var usedOrders = [];
+            target.querySelectorAll('input[name$="-display_order"]').forEach(function (input) {
+                var value = parseInt(input.value, 10);
+                if (!isNaN(value)) {
+                    usedOrders.push(value);
+                }
+            });
+            var nextOrder = 0;
+            while (usedOrders.indexOf(nextOrder) !== -1) {
+                nextOrder += 1;
+            }
+            var newRow = target.lastElementChild;
+            if (newRow) {
+                var orderInput = newRow.querySelector('input[name$="-display_order"]');
+                if (orderInput) {
+                    orderInput.value = String(nextOrder);
+                }
+            }
+        }
     });
 })();

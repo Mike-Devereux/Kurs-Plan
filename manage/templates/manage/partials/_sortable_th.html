@@ -1,0 +1,17 @@
+<th scope="col"
+    class="list-table__sortable{% if th_class %} {{ th_class }}{% endif %}"
+    {% if current_sort == sort_key %}aria-sort="{{ current_dir }}ending"{% else %}aria-sort="none"{% endif %}>
+    <span class="list-table__heading">{{ label }}</span>
+    <a class="list-table__sort-btn{% if current_sort == sort_key %} is-active is-{{ current_dir }}{% else %} is-idle{% endif %}"
+       href="{% url 'manage:dashboard' %}?course_sort={{ sort_key }}&course_dir={% if current_sort == sort_key and current_dir == 'asc' %}desc{% else %}asc{% endif %}"
+       hx-get="{% url 'manage:course_list' %}?course_sort={{ sort_key }}&course_dir={% if current_sort == sort_key and current_dir == 'asc' %}desc{% else %}asc{% endif %}"
+       hx-target="#box-courses-list"
+       hx-swap="innerHTML"
+       hx-push-url="{% url 'manage:dashboard' %}?course_sort={{ sort_key }}&course_dir={% if current_sort == sort_key and current_dir == 'asc' %}desc{% else %}asc{% endif %}"
+       data-sort-key="{{ sort_key }}"
+       aria-label="Sort by {{ label }} {% if current_sort == sort_key and current_dir == 'asc' %}descending{% else %}ascending{% endif %}">
+        <svg class="list-table__sort-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M4.25 6.5 8 10.25 11.75 6.5" />
+        </svg>
+    </a>
+</th>

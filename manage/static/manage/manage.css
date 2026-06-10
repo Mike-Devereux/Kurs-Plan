@@ -140,6 +140,56 @@ a {
     letter-spacing: 0.02em;
 }
 
+.list-table__heading {
+    display: inline;
+    vertical-align: middle;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.list-table__sort-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+    padding: 0.15rem;
+    border-radius: 0.2rem;
+    color: #8b949e;
+    line-height: 0;
+    text-decoration: none;
+}
+
+.list-table__sort-btn:hover {
+    color: #0969da;
+    background: #eaeef2;
+}
+
+.list-table__sort-btn:focus-visible {
+    outline: 2px solid #0969da;
+    outline-offset: 1px;
+}
+
+.list-table__sort-btn.is-active {
+    color: #1f2328;
+}
+
+.list-table__sort-btn.is-active.is-asc .list-table__sort-icon {
+    transform: rotate(180deg);
+}
+
+.list-table__sort-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.15s ease;
+}
+
 .list-table tbody tr:last-child td {
     border-bottom: none;
 }

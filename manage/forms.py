@@ -77,9 +77,70 @@ class SpecializationForm(forms.ModelForm):
         }
 
 
+class SpecializationModuleRequirementForm(forms.ModelForm):
+    class Meta:
+        model = SpecializationModuleRequirement
+        fields = ['module', 'required_credit_points', 'display_order']
+        widgets = {
+            'required_credit_points': forms.NumberInput(attrs={'step': '1'}),
+        }
+
+    def clean_display_order(self):
+        display_order = self.cleaned_data['display_order']
+        specialization_id = self.instance.specialization_id
+        if not specialization_id:
+            return display_order
+        qs = SpecializationModuleRequirement.objects.filter(
+            specialization_id=specialization_id,
+            display_order=display_order,
+        )
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('This display order is already in use.')
+        return display_order
+
+
+class BaseSpecializationModuleRequirementFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.data:
+            return
+        reserved: set[int] = set()
+        for form in self.forms:
+            if form.instance.pk:
+                reserved.add(form.instance.display_order)
+        for form in self.forms:
+            if form.instance.pk:
+                continue
+            order = SpecializationModuleRequirement.lowest_unused_display_order(
+                self.instance if self.instance.pk else None,
+                reserved=reserved,
+            )
+            form.initial.setdefault('display_order', order)
+            reserved.add(order)
+
+    def clean(self):
+        seen: set[int] = set()
+        for form in self.forms:
+            data = getattr(form, 'cleaned_data', None)
+            if not data or data.get('DELETE'):
+                continue
+            order = data.get('display_order')
+            if order in seen:
+                form.add_error(
+                    'display_order',
+                    'This display order is already in use.',
+                )
+            seen.add(order)
+        super().clean()
+
+
 SpecializationModuleRequirementFormSet = inlineformset_factory(
     Specialization,
     SpecializationModuleRequirement,
+    form=SpecializationModuleRequirementForm,
+    formset=BaseSpecializationModuleRequirementFormSet,
     fields=['module', 'required_credit_points', 'display_order'],
     extra=1,
     can_delete=True,

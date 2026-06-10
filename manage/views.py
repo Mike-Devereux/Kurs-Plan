@@ -1,6 +1,9 @@
 from django.db import transaction
 from django.db.models import Count
+from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -11,6 +14,7 @@ from django.views.generic import (
 from courses.models import Course, CourseCategory, Module
 from specializations.models import Specialization
 
+from .course_list import course_sort_state, courses_queryset, persist_course_sort
 from .forms import (
     AdditionalRequirementRuleFormSet,
     CourseCategoryForm,
@@ -34,10 +38,14 @@ class DashboardView(StaffRequiredMixin, TemplateView):
     template_name = 'manage/dashboard.html'
 
     def get_context_data(self, **kwargs):
+        persist_course_sort(self.request)
         context = super().get_context_data(**kwargs)
         context['categories'] = CourseCategory.objects.all()
         context['modules'] = Module.objects.all()
-        context['courses'] = Course.objects.select_related('category').all()
+        course_sort, course_dir = course_sort_state(self.request)
+        context['course_sort'] = course_sort
+        context['course_dir'] = course_dir
+        context['courses'] = courses_queryset(self.request)
         context['specializations'] = Specialization.objects.annotate(
             requirement_count=Count('module_requirements', distinct=True),
             rule_count=Count('additional_requirement_rules', distinct=True),
@@ -147,7 +155,14 @@ class _CourseListMixin(DashboardListMixin):
     add_label = 'Add course'
 
     def get_list_queryset(self):
-        return Course.objects.select_related('category').all()
+        return courses_queryset(self.request)
+
+    def get_list_context(self) -> dict:
+        context = super().get_list_context()
+        course_sort, course_dir = course_sort_state(self.request)
+        context['course_sort'] = course_sort
+        context['course_dir'] = course_dir
+        return context
 
 
 class CourseCreateView(
@@ -178,6 +193,19 @@ class CourseDeleteView(
 
 class CourseBulkDeleteView(_CourseListMixin, BulkDeleteView):
     pass
+
+
+class CourseListPartialView(StaffRequiredMixin, _CourseListMixin, View):
+    """HTMX endpoint: courses table body + header for OOB sort refreshes."""
+
+    def get(self, request, *args, **kwargs):
+        persist_course_sort(request)
+        html = render_to_string(
+            self.list_template_name,
+            self.get_list_context(),
+            request=request,
+        )
+        return HttpResponse(html)
 
 
 # --- Specializations --------------------------------------------------------

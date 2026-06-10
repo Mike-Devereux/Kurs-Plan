@@ -38,10 +38,33 @@ class SpecializationModuleRequirement(models.Model):
                 fields=['specialization', 'module'],
                 name='unique_specialization_module',
             ),
+            models.UniqueConstraint(
+                fields=['specialization', 'display_order'],
+                name='unique_specialization_module_display_order',
+            ),
         ]
 
     def __str__(self) -> str:
         return f'{self.specialization} / {self.module}: {self.required_credit_points} CP'
+
+    @classmethod
+    def lowest_unused_display_order(
+        cls,
+        specialization=None,
+        reserved=None,
+    ) -> int:
+        """Smallest non-negative integer not used as order within a specialization."""
+        used = set(reserved or [])
+        if specialization is not None and specialization.pk:
+            used.update(
+                cls.objects.filter(specialization=specialization).values_list(
+                    'display_order', flat=True,
+                )
+            )
+        order = 0
+        while order in used:
+            order += 1
+        return order
 
 
 class AdditionalRequirementRuleType(models.TextChoices):

@@ -326,6 +326,108 @@ class ModuleCRUDTests(TestCase):
         self.assertFalse(Module.objects.filter(pk=module.pk).exists())
 
 
+class CourseSortTests(TestCase):
+    def setUp(self):
+        self.client.force_login(staff_user())
+        self.cat_a = CourseCategory.objects.create(name='Alpha', display_order=0)
+        self.cat_z = CourseCategory.objects.create(name='Zulu', display_order=1)
+        self.mod = Module.objects.create(name='M')
+        self.course_b = Course.objects.create(
+            code='B-100', title='Bravo', credit_points=Decimal('6.00'),
+            category=self.cat_z,
+        )
+        self.course_a = Course.objects.create(
+            code='A-100', title='Alpha', credit_points=Decimal('3.00'),
+            category=self.cat_a,
+        )
+        self.course_b.modules.add(self.mod)
+        self.course_a.modules.add(self.mod)
+
+    def _course_codes_in_response(self, response):
+        content = response.content.decode()
+        pos_b = content.find('B-100')
+        pos_a = content.find('A-100')
+        self.assertGreater(pos_b, -1)
+        self.assertGreater(pos_a, -1)
+        return pos_a, pos_b
+
+    def test_dashboard_sorts_courses_by_code_asc_by_default(self):
+        response = self.client.get(reverse('manage:dashboard'))
+        pos_a, pos_b = self._course_codes_in_response(response)
+        self.assertLess(pos_a, pos_b)
+
+    def test_dashboard_sorts_courses_by_title_desc(self):
+        response = self.client.get(
+            reverse('manage:dashboard'),
+            {'course_sort': 'title', 'course_dir': 'desc'},
+        )
+        pos_a, pos_b = self._course_codes_in_response(response)
+        self.assertLess(pos_b, pos_a)
+
+    def test_dashboard_sorts_courses_by_category(self):
+        response = self.client.get(
+            reverse('manage:dashboard'),
+            {'course_sort': 'category', 'course_dir': 'asc'},
+        )
+        pos_a, pos_b = self._course_codes_in_response(response)
+        self.assertLess(pos_a, pos_b)
+
+    def test_dashboard_sorts_courses_by_credit_points(self):
+        response = self.client.get(
+            reverse('manage:dashboard'),
+            {'course_sort': 'credit_points', 'course_dir': 'asc'},
+        )
+        pos_a, pos_b = self._course_codes_in_response(response)
+        self.assertLess(pos_a, pos_b)
+
+    def test_sort_persists_in_session_after_course_create_refresh(self):
+        self.client.get(
+            reverse('manage:dashboard'),
+            {'course_sort': 'title', 'course_dir': 'desc'},
+        )
+        response = self.client.post(
+            reverse('manage:course_add'),
+            {
+                'code': 'C-100', 'title': 'Charlie', 'description': '',
+                'credit_points': '1.00', 'category': self.cat_a.pk,
+                'modules': [self.mod.pk], 'notes': '', 'active': 'on',
+            },
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        pos_c = content.find('C-100')
+        pos_b = content.find('B-100')
+        pos_a = content.find('A-100')
+        self.assertLess(pos_c, pos_b)
+        self.assertLess(pos_b, pos_a)
+
+    def test_dashboard_includes_sortable_column_links(self):
+        response = self.client.get(reverse('manage:dashboard'))
+        self.assertContains(response, 'course_sort=code')
+        self.assertContains(response, 'course_sort=title')
+        self.assertContains(response, 'course_sort=category')
+        self.assertContains(response, 'course_sort=credit_points')
+        self.assertContains(response, 'list-table__sort-btn')
+        self.assertContains(response, 'list-table__heading')
+        self.assertContains(response, 'aria-sort="ascending"')
+        self.assertContains(response, 'Sort by Code descending')
+        self.assertContains(response, 'hx-target="#box-courses-list"')
+        self.assertContains(response, 'data-sort-key="code"')
+        self.assertNotContains(response, 'list-table__sort"')
+
+    def test_course_list_partial_via_htmx(self):
+        response = self.client.get(
+            reverse('manage:course_list'),
+            {'course_sort': 'title', 'course_dir': 'desc'},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<!DOCTYPE html>')
+        pos_a, pos_b = self._course_codes_in_response(response)
+        self.assertLess(pos_b, pos_a)
+
+
 class CourseCRUDTests(TestCase):
     def setUp(self):
         self.client.force_login(staff_user())
@@ -465,6 +567,46 @@ class SpecializationCRUDTests(TestCase):
         # The two empty-row templates ship with the page for client-side cloning.
         self.assertContains(response, 'id="empty-requirement-row"')
         self.assertContains(response, 'id="empty-rule-row"')
+
+    def test_add_form_suggests_lowest_unused_requirement_display_order(self):
+        response = self.client.get(
+            reverse('manage:specialization_add'),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertContains(response, 'name="requirements-0-required_credit_points"')
+        self.assertContains(
+            response,
+            'name="requirements-0-required_credit_points" step="1"',
+        )
+        self.assertContains(response, 'name="requirements-0-display_order" value="0"')
+
+    def test_edit_form_suggests_lowest_unused_requirement_display_order(self):
+        spec = Specialization.objects.create(name='Ordered')
+        SpecializationModuleRequirement.objects.create(
+            specialization=spec, module=self.mod1,
+            required_credit_points=Decimal('6.00'), display_order=0,
+        )
+        response = self.client.get(
+            reverse('manage:specialization_edit', args=[spec.pk]),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertContains(response, 'name="requirements-0-display_order" value="0"')
+        self.assertContains(response, 'name="requirements-1-display_order" value="1"')
+
+    def test_post_duplicate_requirement_display_order_is_rejected(self):
+        data = self._payload(
+            **{
+                'requirements-1-display_order': '10',
+            }
+        )
+        response = self.client.post(
+            reverse('manage:specialization_add'),
+            data,
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'This display order is already in use.')
+        self.assertFalse(Specialization.objects.exists())
 
     def test_post_creates_spec_with_requirements(self):
         response = self.client.post(

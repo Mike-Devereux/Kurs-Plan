@@ -35,6 +35,8 @@ urlpatterns = [
     path('modules/bulk-delete/', views.ModuleBulkDeleteView.as_view(),
          name='module_bulk_delete'),
 
+    path('courses/list/', views.CourseListPartialView.as_view(),
+         name='course_list'),
     path('courses/add/', views.CourseCreateView.as_view(),
          name='course_add'),
     path('courses/<int:pk>/edit/', views.CourseUpdateView.as_view(),

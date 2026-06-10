@@ -15,6 +15,6 @@ responses.
 {% endcomment %}
 <section class="box" id="{{ box_id }}" aria-labelledby="{{ box_id }}-title">
     <div id="{{ box_id }}-list" class="box__list">
-        {% include list_template with items=items box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name %}
+        {% include list_template with items=items box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name course_sort=course_sort course_dir=course_dir %}
     </div>
 </section>

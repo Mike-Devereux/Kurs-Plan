@@ -4,10 +4,10 @@
         <thead>
             <tr>
                 <th class="bulk-select" scope="col"><span class="visually-hidden">Select</span></th>
-                <th>Code</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th class="num">CP</th>
+                {% include 'manage/partials/_sortable_th.html' with label='Code' sort_key='code' current_sort=course_sort current_dir=course_dir %}
+                {% include 'manage/partials/_sortable_th.html' with label='Title' sort_key='title' current_sort=course_sort current_dir=course_dir %}
+                {% include 'manage/partials/_sortable_th.html' with label='Category' sort_key='category' current_sort=course_sort current_dir=course_dir %}
+                {% include 'manage/partials/_sortable_th.html' with label='CP' sort_key='credit_points' current_sort=course_sort current_dir=course_dir th_class='num' %}
                 <th>Active</th>
                 <th class="actions" aria-label="Actions"></th>
             </tr>
