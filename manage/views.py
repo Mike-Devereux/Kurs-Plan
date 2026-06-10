@@ -20,6 +20,8 @@ from .forms import (
     SpecializationModuleRequirementFormSet,
 )
 from .mixins import (
+    BulkDeleteView,
+    DashboardListMixin,
     ModalContextMixin,
     ModalDeleteMixin,
     ModalFormMixin,
@@ -46,9 +48,13 @@ class DashboardView(StaffRequiredMixin, TemplateView):
 # --- Course categories -------------------------------------------------------
 
 
-class _CategoryListMixin:
+class _CategoryListMixin(DashboardListMixin):
     list_box_id = 'box-categories'
     list_template_name = 'manage/partials/list_categories.html'
+    bulk_delete_url_name = 'manage:category_bulk_delete'
+    box_title = 'Course categories'
+    add_url_name = 'manage:category_add'
+    add_label = 'Add category'
 
     def get_list_queryset(self):
         return CourseCategory.objects.all()
@@ -80,12 +86,20 @@ class CategoryDeleteView(
     page_title = 'Delete course category'
 
 
+class CategoryBulkDeleteView(_CategoryListMixin, BulkDeleteView):
+    pass
+
+
 # --- Modules -----------------------------------------------------------------
 
 
-class _ModuleListMixin:
+class _ModuleListMixin(DashboardListMixin):
     list_box_id = 'box-modules'
     list_template_name = 'manage/partials/list_modules.html'
+    bulk_delete_url_name = 'manage:module_bulk_delete'
+    box_title = 'Modules'
+    add_url_name = 'manage:module_add'
+    add_label = 'Add module'
 
     def get_list_queryset(self):
         return Module.objects.all()
@@ -117,12 +131,20 @@ class ModuleDeleteView(
     page_title = 'Delete module'
 
 
+class ModuleBulkDeleteView(_ModuleListMixin, BulkDeleteView):
+    pass
+
+
 # --- Courses -----------------------------------------------------------------
 
 
-class _CourseListMixin:
+class _CourseListMixin(DashboardListMixin):
     list_box_id = 'box-courses'
     list_template_name = 'manage/partials/list_courses.html'
+    bulk_delete_url_name = 'manage:course_bulk_delete'
+    box_title = 'Courses'
+    add_url_name = 'manage:course_add'
+    add_label = 'Add course'
 
     def get_list_queryset(self):
         return Course.objects.select_related('category').all()
@@ -154,12 +176,20 @@ class CourseDeleteView(
     page_title = 'Delete course'
 
 
+class CourseBulkDeleteView(_CourseListMixin, BulkDeleteView):
+    pass
+
+
 # --- Specializations --------------------------------------------------------
 
 
-class _SpecializationListMixin:
+class _SpecializationListMixin(DashboardListMixin):
     list_box_id = 'box-specializations'
     list_template_name = 'manage/partials/list_specializations.html'
+    bulk_delete_url_name = 'manage:specialization_bulk_delete'
+    box_title = 'Specializations'
+    add_url_name = 'manage:specialization_add'
+    add_label = 'Add specialization'
 
     def get_list_queryset(self):
         return Specialization.objects.annotate(
@@ -278,3 +308,7 @@ class SpecializationDeleteView(
     model = Specialization
     fragment_template_name = 'manage/partials/confirm_delete.html'
     page_title = 'Delete specialization'
+
+
+class SpecializationBulkDeleteView(_SpecializationListMixin, BulkDeleteView):
+    pass

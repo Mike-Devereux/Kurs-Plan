@@ -1,7 +1,9 @@
+{% include 'manage/partials/_bulk_box_shell.html' with box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name %}
 {% if items %}
     <table class="list-table">
         <thead>
             <tr>
+                <th class="bulk-select" scope="col"><span class="visually-hidden">Select</span></th>
                 <th>Code</th>
                 <th>Title</th>
                 <th>Category</th>
@@ -13,6 +15,13 @@
         <tbody>
             {% for course in items %}
                 <tr>
+                    <td class="bulk-select">
+                        <label class="bulk-select-label">
+                            <input type="checkbox" name="ids" value="{{ course.pk }}"
+                                   data-bulk-item
+                                   aria-label="Select {{ course.code }}">
+                        </label>
+                    </td>
                     <td>{{ course.code }}</td>
                     <td>{{ course.title }}</td>
                     <td>{{ course.category.name }}</td>
@@ -35,3 +44,4 @@
 {% else %}
     <p class="box__placeholder">No courses yet.</p>
 {% endif %}
+</form>

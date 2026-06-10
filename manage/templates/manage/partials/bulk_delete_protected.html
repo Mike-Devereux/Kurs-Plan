@@ -1,0 +1,27 @@
+<div class="modal__card">
+    <header class="modal__header">
+        <h2 id="modal-title">Some items could not be deleted</h2>
+    </header>
+    {% if deleted_count %}
+        <p>{{ deleted_count }} selected item{{ deleted_count|pluralize }} deleted.</p>
+    {% endif %}
+    <div class="errors">
+        <p><strong>The following could not be deleted</strong> because they are still referenced:</p>
+        <ul>
+            {% for item in protected_items %}
+                <li>
+                    <strong>{{ item.object }}</strong>
+                    <ul>
+                        {% for protected in item.protected_objects %}
+                            <li>{{ protected }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        <p>Reassign or remove those references first, then try again.</p>
+    </div>
+    <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-modal-close>OK</button>
+    </div>
+</div>

@@ -1,3 +1,16 @@
+/** Toggle every row checkbox in the same dashboard box. */
+function applyBulkSelectAll(selectAll) {
+    var box = selectAll && selectAll.closest ? selectAll.closest('.box') : null;
+    if (!box) {
+        return;
+    }
+    var checked = selectAll.checked;
+    box.querySelectorAll('[data-bulk-item]').forEach(function (item) {
+        item.checked = checked;
+    });
+    selectAll.indeterminate = false;
+}
+
 (function () {
     'use strict';
 
@@ -120,12 +133,84 @@
         }
     });
 
+    function getBulkBox(el) {
+        return el && el.closest ? el.closest('.box') : null;
+    }
+
+    function syncBulkSelectAll(box) {
+        if (!box) {
+            return;
+        }
+        var selectAll = box.querySelector('[data-bulk-select-all]');
+        if (!selectAll) {
+            return;
+        }
+        var items = box.querySelectorAll('[data-bulk-item]');
+        if (items.length === 0) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+            selectAll.disabled = true;
+            return;
+        }
+        selectAll.disabled = false;
+        var checkedCount = box.querySelectorAll('[data-bulk-item]:checked').length;
+        selectAll.checked = checkedCount === items.length;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < items.length;
+    }
+
+    function initBulkBox(box) {
+        syncBulkSelectAll(box);
+    }
+
+    function initBulkForms(root) {
+        var scope = root || document;
+        if (scope.classList && scope.classList.contains('box')) {
+            initBulkBox(scope);
+            return;
+        }
+        scope.querySelectorAll('.box').forEach(initBulkBox);
+    }
+
+    document.addEventListener('change', function (e) {
+        if (!(e.target instanceof Element)) {
+            return;
+        }
+        var box = getBulkBox(e.target);
+        if (!box) {
+            return;
+        }
+        if (e.target.matches('[data-bulk-select-all]')) {
+            applyBulkSelectAll(e.target);
+            return;
+        }
+        if (e.target.matches('[data-bulk-item]')) {
+            syncBulkSelectAll(box);
+        }
+    });
+
+    document.body.addEventListener('htmx:confirm', function (e) {
+        var elt = e.detail && e.detail.elt;
+        if (!elt || !elt.matches('[data-bulk-delete]')) {
+            return;
+        }
+        var form = elt.closest('[data-bulk-form]');
+        if (!form || form.querySelectorAll('[data-bulk-item]:checked').length === 0) {
+            e.preventDefault();
+        }
+    });
+
     document.body.addEventListener('htmx:afterSwap', function (e) {
         if (e.target && e.target.id === 'modal') {
             focusFirstInModal();
             setupFocusTrap();
         }
+        if (e.target && e.target.classList && e.target.classList.contains('box__list')) {
+            var box = e.target.closest('.box');
+            initBulkBox(box);
+        }
     });
+
+    initBulkForms(document);
 
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('[data-add-formset-row]');

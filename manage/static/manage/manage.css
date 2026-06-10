@@ -79,6 +79,29 @@ a {
     margin-bottom: 0.75rem;
 }
 
+.box__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.bulk-list-form .box__header {
+    margin-bottom: 0.75rem;
+}
+
+.box [data-bulk-delete] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.box:has([data-bulk-item]:checked) [data-bulk-delete] {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
 .box__title {
     font-size: 1.125rem;
     margin: 0;
@@ -136,6 +159,32 @@ a {
     white-space: nowrap;
 }
 
+.list-table th.bulk-select,
+.list-table td.bulk-select {
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.bulk-select-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    cursor: pointer;
+}
+
+.bulk-select-label--header {
+    margin-right: 0.15rem;
+}
+
+.list-table th.bulk-select input,
+.list-table td.bulk-select input {
+    margin: 0;
+    cursor: pointer;
+}
+
 .list-table td.actions .btn + .btn {
     margin-left: 0.25rem;
 }
@@ -160,6 +209,15 @@ a {
 
 .btn:hover {
     background: #eaeef2;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    background: #f6f8fa;
 }
 
 .btn:focus-visible {

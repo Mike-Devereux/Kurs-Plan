@@ -7,24 +7,14 @@ Reusable dashboard box. Include with:
        list_template='manage/partials/list_categories.html'
        items=categories
        add_url_name='manage:category_add'
-       add_label='Add category' %}
+       add_label='Add category'
+       bulk_delete_url_name='manage:category_bulk_delete' %}
 
 The inner #<box_id>-list element is the OOB swap target used by CRUD success
-responses, so the header (with the Add button) stays intact across refreshes.
+responses.
 {% endcomment %}
 <section class="box" id="{{ box_id }}" aria-labelledby="{{ box_id }}-title">
-    <header class="box__header">
-        <h2 class="box__title" id="{{ box_id }}-title">{{ title }}</h2>
-        {% if add_url_name %}
-            <button type="button" class="btn btn--primary btn--sm"
-                    hx-get="{% url add_url_name %}"
-                    hx-target="#modal"
-                    hx-swap="innerHTML">
-                {{ add_label|default:"Add" }}
-            </button>
-        {% endif %}
-    </header>
     <div id="{{ box_id }}-list" class="box__list">
-        {% include list_template %}
+        {% include list_template with items=items box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name %}
     </div>
 </section>

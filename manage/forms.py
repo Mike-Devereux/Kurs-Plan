@@ -55,6 +55,7 @@ class CourseForm(forms.ModelForm):
             'active',
         ]
         widgets = {
+            'credit_points': forms.NumberInput(attrs={'step': '1'}),
             'modules': forms.CheckboxSelectMultiple(),
             'description': forms.Textarea(attrs={'rows': 3}),
             'notes': forms.Textarea(attrs={'rows': 3}),

@@ -1,7 +1,9 @@
+{% include 'manage/partials/_bulk_box_shell.html' with box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name %}
 {% if items %}
     <table class="list-table">
         <thead>
             <tr>
+                <th class="bulk-select" scope="col"><span class="visually-hidden">Select</span></th>
                 <th>Name</th>
                 <th class="num">Module reqs</th>
                 <th class="num">Rules</th>
@@ -12,6 +14,13 @@
         <tbody>
             {% for spec in items %}
                 <tr>
+                    <td class="bulk-select">
+                        <label class="bulk-select-label">
+                            <input type="checkbox" name="ids" value="{{ spec.pk }}"
+                                   data-bulk-item
+                                   aria-label="Select {{ spec.name }}">
+                        </label>
+                    </td>
                     <td>{{ spec.name }}</td>
                     <td class="num">{{ spec.requirement_count }}</td>
                     <td class="num">{{ spec.rule_count }}</td>
@@ -33,3 +42,4 @@
 {% else %}
     <p class="box__placeholder">No specializations yet.</p>
 {% endif %}
+</form>

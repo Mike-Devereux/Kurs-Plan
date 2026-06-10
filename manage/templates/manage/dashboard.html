@@ -7,9 +7,9 @@
     <p class="page-subtitle">Manage the data used by the specialization checker.</p>
 
     <div class="dashboard">
-        {% include 'manage/_box.html' with title='Course categories' box_id='box-categories' list_template='manage/partials/list_categories.html' items=categories add_url_name='manage:category_add' add_label='Add category' %}
-        {% include 'manage/_box.html' with title='Modules' box_id='box-modules' list_template='manage/partials/list_modules.html' items=modules add_url_name='manage:module_add' add_label='Add module' %}
-        {% include 'manage/_box.html' with title='Courses' box_id='box-courses' list_template='manage/partials/list_courses.html' items=courses add_url_name='manage:course_add' add_label='Add course' %}
-        {% include 'manage/_box.html' with title='Specializations' box_id='box-specializations' list_template='manage/partials/list_specializations.html' items=specializations add_url_name='manage:specialization_add' add_label='Add specialization' %}
+        {% include 'manage/_box.html' with title='Course categories' box_id='box-categories' list_template='manage/partials/list_categories.html' items=categories add_url_name='manage:category_add' add_label='Add category' bulk_delete_url_name='manage:category_bulk_delete' %}
+        {% include 'manage/_box.html' with title='Modules' box_id='box-modules' list_template='manage/partials/list_modules.html' items=modules add_url_name='manage:module_add' add_label='Add module' bulk_delete_url_name='manage:module_bulk_delete' %}
+        {% include 'manage/_box.html' with title='Courses' box_id='box-courses' list_template='manage/partials/list_courses.html' items=courses add_url_name='manage:course_add' add_label='Add course' bulk_delete_url_name='manage:course_bulk_delete' %}
+        {% include 'manage/_box.html' with title='Specializations' box_id='box-specializations' list_template='manage/partials/list_specializations.html' items=specializations add_url_name='manage:specialization_add' add_label='Add specialization' bulk_delete_url_name='manage:specialization_bulk_delete' %}
     </div>
 {% endblock %}

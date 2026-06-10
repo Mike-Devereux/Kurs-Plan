@@ -4,6 +4,7 @@ from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.views import View
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -24,6 +25,30 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 def is_htmx(request) -> bool:
     return request.headers.get('HX-Request') == 'true'
+
+
+class DashboardListMixin:
+    """Shared list context for dashboard boxes and OOB list refreshes."""
+
+    list_box_id: str = ''
+    list_template_name: str = ''
+    bulk_delete_url_name: str = ''
+    box_title: str = ''
+    add_url_name: str = ''
+    add_label: str = 'Add'
+
+    def get_list_queryset(self):
+        raise NotImplementedError
+
+    def get_list_context(self) -> dict:
+        return {
+            'items': self.get_list_queryset(),
+            'box_id': self.list_box_id,
+            'title': self.box_title,
+            'add_url_name': self.add_url_name,
+            'add_label': self.add_label,
+            'bulk_delete_url_name': self.bulk_delete_url_name,
+        }
 
 
 class ModalContextMixin:
@@ -63,7 +88,7 @@ class ModalContextMixin:
         """Empty #modal (close) + refreshed list, both as OOB swaps."""
         list_html = render_to_string(
             self.list_template_name,
-            {'items': self.get_list_queryset()},
+            self.get_list_context(),
             request=self.request,
         )
         body = (
@@ -108,3 +133,68 @@ class ModalDeleteMixin(ModalContextMixin):
             protected_objects=list(exc.protected_objects),
         )
         return self.render_to_response(context)
+
+
+class BulkDeleteMixin:
+    """Delete multiple objects selected via ``ids`` checkboxes on the dashboard.
+
+    Subclasses set ``list_box_id``, ``list_template_name``, and implement
+    ``get_list_queryset()``. Deletable rows are removed; rows blocked by
+    ``PROTECT`` are skipped and reported in the modal.
+    """
+
+    list_box_id: str = ''
+    list_template_name: str = ''
+
+    def render_list_oob(self, request, **extra_context) -> str:
+        context = self.get_list_context()
+        context.update(extra_context)
+        list_html = render_to_string(
+            self.list_template_name,
+            context,
+            request=request,
+        )
+        return (
+            f'<div id="{self.list_box_id}-list" class="box__list" '
+            f'hx-swap-oob="true">{list_html}</div>'
+        )
+
+    def post(self, request):
+        ids = request.POST.getlist('ids')
+        queryset = self.get_list_queryset().filter(pk__in=ids)
+
+        deleted_count = 0
+        protected_items: list[dict] = []
+
+        for obj in queryset:
+            try:
+                obj.delete()
+                deleted_count += 1
+            except ProtectedError as exc:
+                protected_items.append({
+                    'object': obj,
+                    'protected_objects': list(exc.protected_objects),
+                })
+
+        if is_htmx(request):
+            parts = [self.render_list_oob(request)]
+            if protected_items:
+                modal_html = render_to_string(
+                    'manage/partials/bulk_delete_protected.html',
+                    {
+                        'protected_items': protected_items,
+                        'deleted_count': deleted_count,
+                    },
+                    request=request,
+                )
+                parts.insert(
+                    0,
+                    f'<div id="modal" hx-swap-oob="innerHTML">{modal_html}</div>',
+                )
+            return HttpResponse(''.join(parts))
+
+        return redirect('manage:dashboard')
+
+
+class BulkDeleteView(StaffRequiredMixin, BulkDeleteMixin, View):
+    pass

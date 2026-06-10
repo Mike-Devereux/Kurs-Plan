@@ -1,0 +1,32 @@
+<form id="{{ box_id }}-bulk-form"
+      class="bulk-list-form"
+      data-bulk-form
+      method="post"
+      action="{% url bulk_delete_url_name %}">
+    {% csrf_token %}
+    <header class="box__header">
+        <h2 class="box__title" id="{{ box_id }}-title">{{ title }}</h2>
+        <div class="box__actions">
+            {% if bulk_delete_url_name %}
+                <label class="bulk-select-label bulk-select-label--header"
+                       title="Select all">
+                    <input type="checkbox" data-bulk-select-all
+                           aria-label="Select all {{ title|lower }}"
+                           onchange="applyBulkSelectAll(this)">
+                </label>
+                <button type="submit" class="btn btn--danger btn--sm"
+                        data-bulk-delete
+                        hx-post="{% url bulk_delete_url_name %}"
+                        hx-swap="none"
+                        hx-confirm="Delete the selected items?">Delete</button>
+            {% endif %}
+            {% if add_url_name %}
+                <button type="button" class="btn btn--primary btn--sm"
+                        hx-get="{% url add_url_name %}"
+                        hx-target="#modal"
+                        hx-swap="innerHTML">
+                    {{ add_label|default:"Add" }}
+                </button>
+            {% endif %}
+        </div>
+    </header>

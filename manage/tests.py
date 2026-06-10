@@ -18,6 +18,96 @@ def staff_user(username='staff'):
     return user
 
 
+class BulkDeleteTests(TestCase):
+    def setUp(self):
+        self.client.force_login(staff_user())
+
+    def test_dashboard_lists_include_bulk_checkboxes(self):
+        response = self.client.get(reverse('manage:dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-bulk-item', count=0)
+        CourseCategory.objects.create(name='Cat', display_order=0)
+        Module.objects.create(name='Mod')
+        response = self.client.get(reverse('manage:dashboard'))
+        self.assertContains(response, 'data-bulk-select-all')
+        self.assertContains(response, 'data-bulk-delete')
+        self.assertContains(response, 'name="ids"')
+        self.assertContains(response, 'id="box-categories-bulk-form"')
+        self.assertContains(response, 'data-bulk-select-all')
+        self.assertContains(response, 'onchange="applyBulkSelectAll(this)"')
+        self.assertContains(response, 'type="submit"')
+
+    def test_bulk_delete_categories(self):
+        c1 = CourseCategory.objects.create(name='C1', display_order=0)
+        c2 = CourseCategory.objects.create(name='C2', display_order=1)
+        response = self.client.post(
+            reverse('manage:category_bulk_delete'),
+            {'ids': [str(c1.pk), str(c2.pk)]},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="box-categories-list"')
+        self.assertFalse(CourseCategory.objects.filter(pk__in=[c1.pk, c2.pk]).exists())
+
+    def test_bulk_delete_skips_protected_and_reports_modal(self):
+        cat = CourseCategory.objects.create(name='InUse', display_order=0)
+        orphan = CourseCategory.objects.create(name='Orphan', display_order=1)
+        module = Module.objects.create(name='M')
+        course = Course.objects.create(
+            code='X1', title='X', credit_points=Decimal('3'),
+            category=cat,
+        )
+        course.modules.add(module)
+
+        response = self.client.post(
+            reverse('manage:category_bulk_delete'),
+            {'ids': [str(cat.pk), str(orphan.pk)]},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="modal"')
+        self.assertContains(response, 'could not be deleted')
+        self.assertTrue(CourseCategory.objects.filter(pk=cat.pk).exists())
+        self.assertFalse(CourseCategory.objects.filter(pk=orphan.pk).exists())
+
+    def test_bulk_delete_courses(self):
+        cat = CourseCategory.objects.create(name='Cat', display_order=0)
+        mod = Module.objects.create(name='M')
+        c1 = Course.objects.create(
+            code='A1', title='A', credit_points=Decimal('3'), category=cat,
+        )
+        c2 = Course.objects.create(
+            code='B1', title='B', credit_points=Decimal('3'), category=cat,
+        )
+        c1.modules.add(mod)
+        c2.modules.add(mod)
+
+        response = self.client.post(
+            reverse('manage:course_bulk_delete'),
+            {'ids': [str(c1.pk), str(c2.pk)]},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Course.objects.filter(pk__in=[c1.pk, c2.pk]).exists())
+
+    def test_bulk_delete_specializations_cascades(self):
+        mod = Module.objects.create(name='M')
+        s1 = Specialization.objects.create(name='S1')
+        s2 = Specialization.objects.create(name='S2')
+        SpecializationModuleRequirement.objects.create(
+            specialization=s1, module=mod, required_credit_points=Decimal('3'),
+        )
+
+        response = self.client.post(
+            reverse('manage:specialization_bulk_delete'),
+            {'ids': [str(s1.pk), str(s2.pk)]},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Specialization.objects.filter(pk__in=[s1.pk, s2.pk]).exists())
+        self.assertTrue(Module.objects.filter(pk=mod.pk).exists())
+
+
 class AccessControlTests(TestCase):
     def test_dashboard_redirects_anonymous_to_login(self):
         response = self.client.get(reverse('manage:dashboard'))
@@ -265,6 +355,8 @@ class CourseCRUDTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'modal__card')
         self.assertContains(response, 'Add course')
+        self.assertContains(response, 'name="credit_points"')
+        self.assertContains(response, 'step="1"')
         self.assertNotContains(response, '<html')
 
     def test_post_valid_creates_with_modules(self):

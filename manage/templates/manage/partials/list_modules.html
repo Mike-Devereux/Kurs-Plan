@@ -1,7 +1,9 @@
+{% include 'manage/partials/_bulk_box_shell.html' with box_id=box_id title=title add_url_name=add_url_name add_label=add_label bulk_delete_url_name=bulk_delete_url_name %}
 {% if items %}
     <table class="list-table">
         <thead>
             <tr>
+                <th class="bulk-select" scope="col"><span class="visually-hidden">Select</span></th>
                 <th>Name</th>
                 <th>Active</th>
                 <th class="actions" aria-label="Actions"></th>
@@ -10,6 +12,13 @@
         <tbody>
             {% for module in items %}
                 <tr>
+                    <td class="bulk-select">
+                        <label class="bulk-select-label">
+                            <input type="checkbox" name="ids" value="{{ module.pk }}"
+                                   data-bulk-item
+                                   aria-label="Select {{ module.name }}">
+                        </label>
+                    </td>
                     <td>{{ module.name }}</td>
                     <td>{% if module.active %}Yes{% else %}No{% endif %}</td>
                     <td class="actions">
@@ -29,3 +38,4 @@
 {% else %}
     <p class="box__placeholder">No modules yet.</p>
 {% endif %}
+</form>
