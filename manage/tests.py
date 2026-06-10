@@ -51,6 +51,39 @@ class CategoryCRUDTests(TestCase):
         self.assertContains(response, 'Add course category')
         self.assertNotContains(response, '<html')
 
+    def test_add_form_suggests_lowest_unused_display_order(self):
+        CourseCategory.objects.create(name='A', display_order=0)
+        CourseCategory.objects.create(name='B', display_order=2)
+        response = self.client.get(
+            reverse('manage:category_add'),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertContains(
+            response,
+            'name="display_order" value="1"',
+        )
+
+    def test_add_form_suggests_zero_when_no_categories_exist(self):
+        response = self.client.get(
+            reverse('manage:category_add'),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertContains(
+            response,
+            'name="display_order" value="0"',
+        )
+
+    def test_post_duplicate_display_order_is_rejected(self):
+        CourseCategory.objects.create(name='Existing', display_order=5)
+        response = self.client.post(
+            reverse('manage:category_add'),
+            {'name': 'New Cat', 'display_order': 5, 'active': 'on'},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'already in use')
+        self.assertFalse(CourseCategory.objects.filter(name='New Cat').exists())
+
     def test_get_add_form_as_full_page_without_htmx(self):
         response = self.client.get(reverse('manage:category_add'))
         self.assertEqual(response.status_code, 200)
@@ -67,7 +100,8 @@ class CategoryCRUDTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="modal"')
         self.assertContains(response, 'id="box-categories-list"')
-        self.assertContains(response, 'hx-swap-oob="true"', count=2)
+        self.assertContains(response, 'hx-swap-oob="innerHTML"')
+        self.assertContains(response, 'hx-swap-oob="true"')
         self.assertContains(response, 'New Cat')
         self.assertTrue(CourseCategory.objects.filter(name='New Cat').exists())
 

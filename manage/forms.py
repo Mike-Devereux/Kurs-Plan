@@ -14,6 +14,23 @@ class CourseCategoryForm(forms.ModelForm):
         model = CourseCategory
         fields = ['name', 'display_order', 'active']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and not self.data:
+            self.initial.setdefault(
+                'display_order',
+                CourseCategory.lowest_unused_display_order(),
+            )
+
+    def clean_display_order(self):
+        display_order = self.cleaned_data['display_order']
+        qs = CourseCategory.objects.filter(display_order=display_order)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('This display order is already in use.')
+        return display_order
+
 
 class ModuleForm(forms.ModelForm):
     class Meta:

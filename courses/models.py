@@ -10,9 +10,24 @@ class CourseCategory(models.Model):
         ordering = ['display_order', 'name']
         verbose_name = 'course category'
         verbose_name_plural = 'course categories'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['display_order'],
+                name='unique_course_category_display_order',
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.name
+
+    @classmethod
+    def lowest_unused_display_order(cls) -> int:
+        """Smallest non-negative integer not used as a category display order."""
+        used = set(cls.objects.values_list('display_order', flat=True))
+        order = 0
+        while order in used:
+            order += 1
+        return order
 
 
 class Module(models.Model):

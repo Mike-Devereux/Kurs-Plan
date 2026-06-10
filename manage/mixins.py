@@ -67,8 +67,7 @@ class ModalContextMixin:
             request=self.request,
         )
         body = (
-            '<div id="modal" class="modal" role="dialog" aria-modal="true" '
-            'aria-labelledby="modal-title" hx-swap-oob="true"></div>'
+            '<div id="modal" hx-swap-oob="innerHTML"></div>'
             f'<div id="{self.list_box_id}-list" class="box__list" '
             'hx-swap-oob="true">'
             f'{list_html}'

@@ -1,10 +1,14 @@
 (function () {
     'use strict';
 
-    var modal = document.getElementById('modal');
     var focusTrapHandler = null;
 
+    function getModal() {
+        return document.getElementById('modal');
+    }
+
     function modalIsOpen() {
+        var modal = getModal();
         return modal && modal.innerHTML.trim() !== '';
     }
 
@@ -36,6 +40,7 @@
 
     function setupFocusTrap() {
         teardownFocusTrap();
+        var modal = getModal();
         if (!modal || !modalIsOpen()) {
             return;
         }
@@ -43,10 +48,11 @@
             if (e.key !== 'Tab' || !modalIsOpen()) {
                 return;
             }
-            if (!modal.contains(e.target)) {
+            var trapModal = getModal();
+            if (!trapModal || !trapModal.contains(e.target)) {
                 return;
             }
-            var focusables = getFocusableElements(modal);
+            var focusables = getFocusableElements(trapModal);
             if (focusables.length === 0) {
                 return;
             }
@@ -66,6 +72,7 @@
     }
 
     function focusFirstInModal() {
+        var modal = getModal();
         if (!modal) {
             return;
         }
@@ -84,22 +91,28 @@
 
     function closeModal() {
         teardownFocusTrap();
+        var modal = getModal();
         if (modal) {
             modal.innerHTML = '';
         }
     }
 
     document.addEventListener('click', function (e) {
+        if (!(e.target instanceof Element)) {
+            return;
+        }
         var closeTrigger = e.target.closest('[data-modal-close]');
         if (closeTrigger) {
             e.preventDefault();
+            e.stopPropagation();
             closeModal();
             return;
         }
+        var modal = getModal();
         if (modal && e.target === modal) {
             closeModal();
         }
-    });
+    }, true);
 
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && modalIsOpen()) {
