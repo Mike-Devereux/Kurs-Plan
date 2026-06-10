@@ -85,6 +85,17 @@ class SpecializationModuleRequirementForm(forms.ModelForm):
             'required_credit_points': forms.NumberInput(attrs={'step': '1'}),
         }
 
+    def has_changed(self):
+        # Extra rows ship with a suggested display_order; without this Django
+        # treats them as changed and requires module even when the row is blank.
+        if (
+            not self.instance.pk
+            and self.data is not None
+            and not self.data.get(self.add_prefix('module'))
+        ):
+            return False
+        return super().has_changed()
+
     def clean_display_order(self):
         display_order = self.cleaned_data['display_order']
         specialization_id = self.instance.specialization_id
@@ -124,7 +135,7 @@ class BaseSpecializationModuleRequirementFormSet(BaseInlineFormSet):
         seen: set[int] = set()
         for form in self.forms:
             data = getattr(form, 'cleaned_data', None)
-            if not data or data.get('DELETE'):
+            if not data or data.get('DELETE') or not data.get('module'):
                 continue
             order = data.get('display_order')
             if order in seen:

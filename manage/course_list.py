@@ -53,6 +53,7 @@ def courses_queryset(request) -> QuerySet[Course]:
     sort_key, direction = course_sort_state(request)
     return (
         Course.objects.select_related('category')
+        .prefetch_related('modules')
         .order_by(*course_sort_ordering(sort_key, direction))
     )
 

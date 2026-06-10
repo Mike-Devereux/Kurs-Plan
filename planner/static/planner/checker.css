@@ -108,7 +108,7 @@ a {
 
 .catalog {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
 }
 
@@ -385,6 +385,10 @@ a {
     font-weight: 600;
     color: #57606a;
     font-size: 0.85rem;
+}
+
+.result__table--allocation tbody tr.result__allocation-row--module-start td {
+    border-top: 2px solid #8b949e;
 }
 
 .result__details--failure .result__messages {

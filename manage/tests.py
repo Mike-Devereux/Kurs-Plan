@@ -351,6 +351,16 @@ class CourseSortTests(TestCase):
         self.assertGreater(pos_a, -1)
         return pos_a, pos_b
 
+    def test_dashboard_lists_course_modules(self):
+        mod2 = Module.objects.create(name='Zeta')
+        self.course_a.modules.add(mod2)
+        response = self.client.get(reverse('manage:dashboard'))
+        self.assertContains(response, '<th>Modules</th>')
+        row_a = response.content.decode().split('A-100', 1)[1].split('</tr>', 1)[0]
+        self.assertIn('M', row_a)
+        self.assertIn('Zeta', row_a)
+        self.assertLess(row_a.index('M'), row_a.index('Zeta'))
+
     def test_dashboard_sorts_courses_by_code_asc_by_default(self):
         response = self.client.get(reverse('manage:dashboard'))
         pos_a, pos_b = self._course_codes_in_response(response)
@@ -692,6 +702,41 @@ class SpecializationCRUDTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Select at least one module for this rule.')
         self.assertFalse(Specialization.objects.exists())
+
+    def test_edit_save_ignores_blank_extra_requirement_row(self):
+        spec = Specialization.objects.create(name='Edit me')
+        r1 = SpecializationModuleRequirement.objects.create(
+            specialization=spec, module=self.mod1,
+            required_credit_points=Decimal('6.00'), display_order=0,
+        )
+        response = self.client.post(
+            reverse('manage:specialization_edit', args=[spec.pk]),
+            {
+                'name': 'Edit me',
+                'description': '',
+                'active': 'on',
+                'requirements-TOTAL_FORMS': '2',
+                'requirements-INITIAL_FORMS': '1',
+                'requirements-MIN_NUM_FORMS': '0',
+                'requirements-MAX_NUM_FORMS': '1000',
+                'requirements-0-id': str(r1.pk),
+                'requirements-0-module': str(self.mod1.pk),
+                'requirements-0-required_credit_points': '6.00',
+                'requirements-0-display_order': '0',
+                'requirements-1-id': '',
+                'requirements-1-module': '',
+                'requirements-1-required_credit_points': '',
+                'requirements-1-display_order': '1',
+                'rules-TOTAL_FORMS': '0',
+                'rules-INITIAL_FORMS': '0',
+                'rules-MIN_NUM_FORMS': '0',
+                'rules-MAX_NUM_FORMS': '1000',
+            },
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="box-specializations-list"')
+        self.assertEqual(spec.module_requirements.count(), 1)
 
     def test_edit_updates_requirements_and_deletes_one(self):
         spec = Specialization.objects.create(name='Edit me')

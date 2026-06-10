@@ -95,7 +95,7 @@
     {% if result.allocation %}
         <details class="result__details">
             <summary>Allocation (best or chosen)</summary>
-            <table class="result__table">
+            <table class="result__table result__table--allocation">
                 <thead>
                     <tr>
                         <th>Course</th>
@@ -104,7 +104,7 @@
                 </thead>
                 <tbody>
                     {% for entry in result.allocation %}
-                        <tr>
+                        <tr{% if entry.module_block_start %} class="result__allocation-row--module-start"{% endif %}>
                             <td>{{ entry.course.code }} — {{ entry.course.title }}</td>
                             <td>{% if entry.module %}{{ entry.module.name }}{% else %}<em>Unused</em>{% endif %}</td>
                         </tr>

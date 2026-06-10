@@ -46,6 +46,7 @@ class AllocationEntry:
 
     course: Course
     module: Optional[Module]
+    module_block_start: bool = False
 
 
 @dataclass(frozen=True)

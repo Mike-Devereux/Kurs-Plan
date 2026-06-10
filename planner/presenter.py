@@ -199,16 +199,36 @@ def build_check_result(
 
     allocation_entries: list[AllocationEntry] = []
     if result.allocation:
+        def _allocation_pair_sort_key(pair: tuple[int, int | None]) -> tuple[str, str]:
+            course_id, mid = pair
+            course = courses_by_id[course_id]
+            if mid is None:
+                module_name = '\uffff'  # unused rows after assigned modules
+            else:
+                mod = modules_by_id.get(mid)
+                module_name = mod.name if mod else ''
+            return (module_name, course.code)
+
         sorted_pairs = sorted(
             result.allocation.pairs,
-            key=lambda p: courses_by_id[p[0]].code,
+            key=_allocation_pair_sort_key,
         )
+        previous_module_id: object = ...
         for course_id, mid in sorted_pairs:
             c = courses_by_id.get(course_id)
             if c is None:
                 continue
             mod = modules_by_id.get(mid) if mid is not None else None
-            allocation_entries.append(AllocationEntry(course=c, module=mod))
+            module_block_start = (
+                previous_module_id is not ...
+                and mid != previous_module_id
+            )
+            allocation_entries.append(AllocationEntry(
+                course=c,
+                module=mod,
+                module_block_start=module_block_start,
+            ))
+            previous_module_id = mid
 
     unused: list[Course] = []
     for cid in sorted(

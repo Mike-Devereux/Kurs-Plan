@@ -266,6 +266,126 @@ class PresenterIntegrationTests(TestCase):
         self.assertEqual(result.allocation[0].course, course)
         self.assertEqual(result.allocation[0].module, module)
 
+    def test_allocation_ordered_by_module_name_then_course_code(self):
+        from .domain import Allocation, EvaluationResult
+        from .evaluator import SUCCESS
+        from .presenter import build_check_result
+
+        category = CourseCategory.objects.create(name='Cat')
+        mod_alpha = Module.objects.create(name='Alpha')
+        mod_zulu = Module.objects.create(name='Zulu')
+        spec = Specialization.objects.create(name='Spec')
+        course_b = Course.objects.create(
+            code='B-100', title='Bravo', credit_points=Decimal('3.00'),
+            category=category,
+        )
+        course_a = Course.objects.create(
+            code='A-100', title='Alpha course', credit_points=Decimal('3.00'),
+            category=category,
+        )
+        course_b.modules.add(mod_zulu)
+        course_a.modules.add(mod_alpha)
+
+        result = EvaluationResult(
+            status=SUCCESS,
+            allocation=Allocation(pairs=(
+                (course_b.pk, mod_zulu.pk),
+                (course_a.pk, mod_alpha.pk),
+            )),
+        )
+        check = build_check_result(
+            result,
+            spec,
+            (course_b, course_a),
+            total_credit_points=Decimal('6.00'),
+        )
+
+        self.assertEqual(check.allocation[0].module, mod_alpha)
+        self.assertEqual(check.allocation[0].course, course_a)
+        self.assertFalse(check.allocation[0].module_block_start)
+        self.assertEqual(check.allocation[1].module, mod_zulu)
+        self.assertEqual(check.allocation[1].course, course_b)
+        self.assertTrue(check.allocation[1].module_block_start)
+
+    def test_allocation_separator_only_on_module_change(self):
+        from django.template.loader import render_to_string
+
+        from .domain import Allocation, EvaluationResult
+        from .evaluator import SUCCESS
+        from .presenter import build_check_result
+
+        category = CourseCategory.objects.create(name='Cat')
+        mod = Module.objects.create(name='Shared')
+        spec = Specialization.objects.create(name='Spec')
+        course_a = Course.objects.create(
+            code='A-100', title='A', credit_points=Decimal('3.00'),
+            category=category,
+        )
+        course_b = Course.objects.create(
+            code='B-100', title='B', credit_points=Decimal('3.00'),
+            category=category,
+        )
+        course_a.modules.add(mod)
+        course_b.modules.add(mod)
+
+        same_module = build_check_result(
+            EvaluationResult(
+                status=SUCCESS,
+                allocation=Allocation(pairs=(
+                    (course_a.pk, mod.pk),
+                    (course_b.pk, mod.pk),
+                )),
+            ),
+            spec,
+            (course_a, course_b),
+            total_credit_points=Decimal('6.00'),
+        )
+        self.assertFalse(same_module.allocation[0].module_block_start)
+        self.assertFalse(same_module.allocation[1].module_block_start)
+        same_module_html = render_to_string(
+            'planner/partials/_result.html',
+            {'result': same_module},
+        )
+        self.assertEqual(
+            same_module_html.count('result__allocation-row--module-start'),
+            0,
+        )
+
+        mod_other = Module.objects.create(name='Other')
+        course_c = Course.objects.create(
+            code='C-100', title='C', credit_points=Decimal('3.00'),
+            category=category,
+        )
+        course_c.modules.add(mod_other)
+        mixed_modules = build_check_result(
+            EvaluationResult(
+                status=SUCCESS,
+                allocation=Allocation(pairs=(
+                    (course_a.pk, mod.pk),
+                    (course_b.pk, mod.pk),
+                    (course_c.pk, mod_other.pk),
+                )),
+            ),
+            spec,
+            (course_a, course_b, course_c),
+            total_credit_points=Decimal('9.00'),
+        )
+        # Rows are sorted by module name, then course code ("Other" before "Shared").
+        self.assertEqual(mixed_modules.allocation[0].course, course_c)
+        self.assertFalse(mixed_modules.allocation[0].module_block_start)
+        self.assertEqual(mixed_modules.allocation[1].course, course_a)
+        self.assertTrue(mixed_modules.allocation[1].module_block_start)
+        self.assertEqual(mixed_modules.allocation[2].course, course_b)
+        self.assertFalse(mixed_modules.allocation[2].module_block_start)
+        mixed_html = render_to_string(
+            'planner/partials/_result.html',
+            {'result': mixed_modules},
+        )
+        self.assertEqual(
+            mixed_html.count('result__allocation-row--module-start'),
+            1,
+        )
+
 
 class EvaluateSelectionEndToEndTests(TestCase):
     """End-to-end ORM tests against the ``seed_demo_data`` fixture.
@@ -478,6 +598,8 @@ class CheckerResultHtmlTests(TestCase):
         self.assertIn('Statistics', content)
 
         self.assertContains(response, 'Allocation (best or chosen)')
+        self.assertContains(response, 'result__table--allocation')
+        self.assertContains(response, 'result__allocation-row--module-start')
         self.assertContains(response, 'CHE101')
 
     def test_failure_post_renders_headline_and_what_failed_section(self):
