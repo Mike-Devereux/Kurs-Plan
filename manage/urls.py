@@ -15,7 +15,7 @@ urlpatterns = [
         ),
         name='login',
     ),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', views.ManageLogoutView.as_view(), name='logout'),
 
     path('texts/<slug:key>/edit/', views.SiteTextUpdateView.as_view(),
          name='site_text_edit'),

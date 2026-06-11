@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LogoutView
 from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
@@ -34,6 +35,21 @@ from .mixins import (
     StaffRequiredMixin,
     is_htmx,
 )
+
+
+class ManageLogoutView(LogoutView):
+    """Logout that also accepts GET.
+
+    The shared ``webtool_template`` header renders the logout control as a
+    plain ``<a href>`` (a GET request), but Django's ``LogoutView`` is
+    POST-only since 5.0 and returns 405 for GET. Treating GET like POST keeps
+    the link-based header working.
+    """
+
+    http_method_names = ['get', 'post', 'options']
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 
 class DashboardView(StaffRequiredMixin, TemplateView):
