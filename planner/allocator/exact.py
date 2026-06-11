@@ -27,14 +27,18 @@ return — preferring one that uses more of the student's selection, matching th
 Credit points are scaled to integers (``* 100``) so the ``>=`` constraints are
 exact for the two-decimal ``DecimalField`` credit values.
 
-If SciPy is unavailable the public helper returns ``None`` and the caller falls
-back to its existing behaviour, so this module is a strict enhancement.
+SciPy/NumPy are hard dependencies: they are imported at module load, so an
+environment without them fails fast rather than silently degrading to a
+non-exact result.
 """
 
 from __future__ import annotations
 
 from decimal import Decimal
 from typing import Optional
+
+import numpy as np
+from scipy.optimize import Bounds, LinearConstraint, milp
 
 from ..domain import Allocation, EvaluationInput
 
@@ -49,17 +53,10 @@ def _scaled(value: Decimal) -> int:
 def solve_feasible(inp: EvaluationInput) -> Optional[Allocation]:
     """Return a fully-satisfying :class:`Allocation`, or ``None``.
 
-    ``None`` means either *no* satisfying allocation exists (proven by the
-    solver) or SciPy is not installed. In both cases the caller should keep
-    its existing result; a non-``None`` return is guaranteed to satisfy every
-    module requirement and additional rule.
+    ``None`` means the solver *proved* that no satisfying allocation exists.
+    A non-``None`` return is guaranteed to satisfy every module requirement
+    and additional rule.
     """
-    try:
-        import numpy as np
-        from scipy.optimize import Bounds, LinearConstraint, milp
-    except ImportError:
-        return None
-
     courses = tuple(sorted(inp.courses, key=lambda c: c.id))
 
     # Decision variables: one per (course, eligible module) pair.

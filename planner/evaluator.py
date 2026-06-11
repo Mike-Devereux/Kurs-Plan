@@ -19,6 +19,7 @@ from typing import Optional
 
 from .allocator import default_allocator
 from .allocator.base import AllocatorProtocol, credits_for_module, unused_course_ids
+from .allocator.exact import solve_feasible
 from .domain import (
     Allocation,
     AdditionalRuleStatus,
@@ -230,13 +231,11 @@ def _attempt_exact_success(
     """Exact ILP rescue for budget-exhausted searches.
 
     Returns a ``SUCCESS`` :class:`EvaluationResult` when the solver finds a
-    fully-satisfying allocation, or ``None`` when no satisfying allocation
-    exists or the solver is unavailable (so the caller keeps its existing
-    best-failed result). Only success can be rescued: a genuine failure
-    verdict is left to the existing best-failed / budget-note path.
+    fully-satisfying allocation, or ``None`` when the solver proves no
+    satisfying allocation exists (so the caller keeps its existing best-failed
+    result). Only success can be rescued: a genuine failure verdict is left to
+    the existing best-failed / budget-note path.
     """
-    from .allocator.exact import solve_feasible
-
     allocation = solve_feasible(input_)
     if allocation is None:
         return None

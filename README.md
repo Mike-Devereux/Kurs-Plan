@@ -4,6 +4,41 @@ A Django application that lets students check whether a selected set of courses 
 
 See [SPEC.md](SPEC.md) for product requirements and [DEVELOPMENT.md](DEVELOPMENT.md) for implementation decisions.
 
+## Setup
+
+The project uses [uv](https://docs.astral.sh/uv/) for environment and dependency management (Python 3.12+).
+
+```bash
+# 1. Install dependencies into a local .venv (from pyproject.toml / uv.lock)
+uv sync
+
+# 2. Apply database migrations (SQLite in development)
+uv run python manage.py migrate
+
+# 3. (Optional) Load demo courses, modules, and specializations
+uv run python manage.py seed_demo_data
+
+# 4. Create an admin account for the /manage/ dashboard
+uv run python manage.py createsuperuser
+
+# 5. Run the development server
+uv run python manage.py runserver
+```
+
+The student checker is then at `http://127.0.0.1:8000/checker/` and the admin dashboard at `http://127.0.0.1:8000/manage/`.
+
+**Dependencies** (declared in `pyproject.toml`, resolved by `uv sync`):
+
+- **Django** — web framework, ORM, and admin.
+- **SciPy** — exact mixed-integer solver (HiGHS) used by the evaluation engine; a hard dependency (see [Step 4a](#step-4a--exact-solve-when-the-budget-is-exhausted)).
+- **webtool-template** — local editable package providing the shared site shell (header, footer, banner).
+
+Run the test suite with:
+
+```bash
+uv run python manage.py test
+```
+
 ## Evaluation algorithm
 
 When a student submits a specialization and a set of courses, the engine in `planner/` decides whether the requirements can be met. The logic is deterministic, data-driven, and separated from the web layer.
@@ -39,7 +74,7 @@ For each course, the allocator branches on:
 
 Each course appears at most once in an allocation. The search does **not** prune branches where a module's per-module requirement is already met — surplus credit on a satisfied module is allowed and may be needed to satisfy additional cross-module rules (see SPEC §6).
 
-The search is capped at 100,000 visited nodes (`MAX_NODES`). If the budget is exceeded, evaluation continues with whatever allocations were explored and may attach a `SEARCH_BUDGET_EXCEEDED` failure reason.
+The search is capped at 100,000 visited nodes (`MAX_NODES`). The backtracking search is therefore a fast *first pass*, not the final authority: on large selections it can exhaust the budget before reaching a satisfying allocation. When that happens, the evaluator falls back to an exact solver (see Step 4a) so that hitting the cap can never, on its own, produce a false "failure".
 
 ### Step 3 — Score each allocation
 
@@ -84,6 +119,10 @@ for each allocation in allocator.search(input):
     if best is None OR candidate_score > best.score:
         best = (candidate_score, allocation, module_statuses, rule_statuses)
 
+# No success found in the bounded search.
+if budget was exhausted:
+    try exact solve (Step 4a) — return SUCCESS if a satisfying allocation exists
+
 if best is None:
     return FAILURE with NO_VIABLE_ALLOCATION
 
@@ -101,6 +140,29 @@ return FAILURE with best allocation and structured failure reasons
 
 When no allocation fully satisfies all requirements, the allocation with the highest score is returned as the **best failed solution**.
 
+### Step 4a — Exact solve when the budget is exhausted
+
+The bounded backtracking search can stop before reaching a valid allocation, which would otherwise report a *false* failure (a satisfying allocation existed but was never visited). To guarantee a correct pass/fail verdict, the evaluator runs an **exact rescue** whenever the node budget was exhausted (`planner/allocator/exact.py`, `solve_feasible`).
+
+The allocation is modelled as a **mixed-integer program** and solved exactly with `scipy.optimize.milp` (backed by the HiGHS solver). Binary variables `x[c, m]` mean "course *c* counts toward module *m*":
+
+```
+maximise   sum(x[c, m])                      # place as many courses as possible
+subject to sum_m x[c, m] <= 1                # each course used at most once
+           sum_c cp_c * x[c, m] >= required_m            # every module requirement
+           sum_{m in rule} sum_c cp_c * x[c, m] >= required_rule   # every cross-module rule
+           x[c, m] in {0, 1}
+```
+
+Credit points are scaled to integers (`* 100`) so the `>=` constraints are exact for two-decimal credit values.
+
+- If the solver returns a satisfying allocation, the result is upgraded to **success**. The objective maximises placed courses, matching the `assigned_course_count` tie-breaker, so the returned allocation is a natural, complete one.
+- If the solver **proves** infeasibility, the best-failed result from Step 4 stands (with its `SEARCH_BUDGET_EXCEEDED` note).
+
+Because the MILP search is exhaustive (no node budget and, by default, no time limit), a `failure` verdict reached through this path is a *proof* that no satisfying allocation exists — not a "gave up early" outcome. Only the success verdict is rescued; the best-failed allocation and its failure reasons still come from Step 4's scoring.
+
+SciPy/NumPy are **hard dependencies**: they are imported when `planner` loads, so an environment without them fails fast rather than silently degrading to the budget-limited result.
+
 ### Step 5 — Explain failures
 
 For the best failed allocation, the evaluator builds `failure_reasons`:
@@ -109,7 +171,7 @@ For the best failed allocation, the evaluator builds `failure_reasons`:
 - `RULE_NOT_MET` — an additional rule's achieved credits fall short (includes missing credit amount).
 - `COURSE_UNUSABLE` — a course had eligible modules but was left unused in the best allocation.
 - `NO_VIABLE_ALLOCATION` — no allocations were produced (for example, empty course list with unsatisfiable requirements).
-- `SEARCH_BUDGET_EXCEEDED` — the node budget was hit before the search completed.
+- `SEARCH_BUDGET_EXCEEDED` — the backtracking node budget was hit before the search completed. This is only ever attached to a failure that the exact solver (Step 4a) has independently confirmed is infeasible; it never accompanies a success.
 
 ### Entry point
 
@@ -118,15 +180,17 @@ The student-facing path is:
 ```
 evaluate_selection(specialization, courses)
   → build_input(...)          # ORM → EvaluationInput
-  → evaluate(input_)          # search + score + decide
+  → evaluate(input_)          # backtracking search + score + exact rescue + decide
   → build_check_result(...)   # hydrate for templates
 ```
 
 ### Design properties
 
-- **Deterministic** — fixed course ordering, sorted module branches, first success returned in DFS order.
+- **Correct verdict** — the pass/fail result is never a "gave up early" outcome. A success comes either from the backtracking pass or from the exact solver; a failure is backed by either an exhaustive backtracking search (budget not exhausted) or an exact MILP infeasibility proof (budget exhausted).
+- **Deterministic** — fixed course ordering, sorted module branches, first success returned in DFS order; the exact rescue is a pure function of the evaluation input.
 - **Explainable** — every outcome includes per-module and per-rule credit totals plus structured failure reasons.
 - **Django-free core** — allocation, rules, scoring, and evaluation operate on pure domain types; only `loader.build_input` touches the ORM.
+- **SciPy-backed** — the exact rescue requires `scipy` (HiGHS); it is a hard dependency imported at module load.
 
 ### Pseudocode (full pipeline)
 
@@ -173,7 +237,25 @@ function evaluate(input):
         if best is None or s > best.score:
             best = (s, allocation, module_statuses, rule_statuses)
 
+    if budget_exhausted:
+        # Exact rescue: only the success verdict can be upgraded.
+        allocation = solve_feasible(input)          # scipy.optimize.milp (exact)
+        if allocation is not None:
+            return success(allocation, statuses(allocation))
+
     if best is None:
         return failure(NO_VIABLE_ALLOCATION)
     return failure(best.allocation, build_failure_reasons(best))
+
+function solve_feasible(input):
+    # Mixed-integer program solved exactly with scipy.optimize.milp (HiGHS).
+    # Returns a fully-satisfying allocation, or None if the solver PROVES
+    # that none exists.
+    maximise sum(x[c, m])
+    subject to:
+        sum_m x[c, m] <= 1                                   for each course c
+        sum_c cp_c * x[c, m] >= required_m                   for each module requirement
+        sum_{m in rule} sum_c cp_c * x[c, m] >= required_rule  for each additional rule
+        x[c, m] in {0, 1}
+    return allocation if solver status is optimal else None
 ```
