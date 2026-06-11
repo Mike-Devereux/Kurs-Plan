@@ -2,11 +2,21 @@ from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from courses.models import Course, CourseCategory, Module
+from planner.models import SiteText
 from specializations.models import (
     AdditionalRequirementRule,
     Specialization,
     SpecializationModuleRequirement,
 )
+
+
+class SiteTextForm(forms.ModelForm):
+    class Meta:
+        model = SiteText
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4}),
+        }
 
 
 class CourseCategoryForm(forms.ModelForm):

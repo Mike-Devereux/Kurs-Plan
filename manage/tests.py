@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from courses.models import Course, CourseCategory, Module
+from planner.models import SiteText
 from specializations.models import (
     AdditionalRequirementRule,
     AdditionalRequirementRuleType,
@@ -826,3 +827,51 @@ class SpecializationCRUDTests(TestCase):
         self.assertFalse(Specialization.objects.exists())
         self.assertFalse(SpecializationModuleRequirement.objects.exists())
         self.assertFalse(AdditionalRequirementRule.objects.exists())
+
+
+class SiteTextTests(TestCase):
+    def setUp(self):
+        self.client.force_login(staff_user())
+        # The checker_subtitle row is created by a data migration and is
+        # therefore already present in the test database.
+        self.text = SiteText.objects.get(key='checker_subtitle')
+
+    def test_dashboard_shows_page_texts_box_before_categories(self):
+        response = self.client.get(reverse('manage:dashboard'))
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        self.assertIn('id="box-site-texts"', html)
+        self.assertIn('Checker page subtitle', html)
+        self.assertLess(
+            html.index('id="box-site-texts"'),
+            html.index('id="box-categories"'),
+        )
+
+    def test_get_edit_form_as_fragment(self):
+        response = self.client.get(
+            reverse('manage:site_text_edit', args=['checker_subtitle']),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Edit page text')
+        self.assertContains(response, 'Checker page subtitle')
+        # Avoid the apostrophe in the seeded text, which is HTML-escaped.
+        self.assertContains(response, 'Choose your target specialization')
+
+    def test_post_updates_content_and_returns_oob_refresh(self):
+        response = self.client.post(
+            reverse('manage:site_text_edit', args=['checker_subtitle']),
+            {'content': 'New subtitle text.'},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="box-site-texts-list"')
+        self.text.refresh_from_db()
+        self.assertEqual(self.text.content, 'New subtitle text.')
+
+    def test_edit_requires_staff(self):
+        self.client.logout()
+        response = self.client.get(
+            reverse('manage:site_text_edit', args=['checker_subtitle']),
+        )
+        self.assertEqual(response.status_code, 302)

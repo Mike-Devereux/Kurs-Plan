@@ -12,6 +12,7 @@ from django.views.generic import (
 )
 
 from courses.models import Course, CourseCategory, Module
+from planner.models import SiteText
 from specializations.models import Specialization
 
 from .course_list import course_sort_state, courses_queryset, persist_course_sort
@@ -20,6 +21,7 @@ from .forms import (
     CourseCategoryForm,
     CourseForm,
     ModuleForm,
+    SiteTextForm,
     SpecializationForm,
     SpecializationModuleRequirementFormSet,
 )
@@ -40,6 +42,7 @@ class DashboardView(StaffRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         persist_course_sort(self.request)
         context = super().get_context_data(**kwargs)
+        context['site_texts'] = SiteText.objects.all()
         context['categories'] = CourseCategory.objects.all()
         context['modules'] = Module.objects.all()
         course_sort, course_dir = course_sort_state(self.request)
@@ -51,6 +54,29 @@ class DashboardView(StaffRequiredMixin, TemplateView):
             rule_count=Count('additional_requirement_rules', distinct=True),
         )
         return context
+
+
+# --- Site texts --------------------------------------------------------------
+
+
+class _SiteTextListMixin(DashboardListMixin):
+    list_box_id = 'box-site-texts'
+    list_template_name = 'manage/partials/list_site_texts.html'
+    box_title = 'Page texts'
+
+    def get_list_queryset(self):
+        return SiteText.objects.all()
+
+
+class SiteTextUpdateView(
+    StaffRequiredMixin, _SiteTextListMixin, ModalFormMixin, UpdateView,
+):
+    model = SiteText
+    form_class = SiteTextForm
+    fragment_template_name = 'manage/partials/site_text_form.html'
+    page_title = 'Edit page text'
+    slug_field = 'key'
+    slug_url_kwarg = 'key'
 
 
 # --- Course categories -------------------------------------------------------

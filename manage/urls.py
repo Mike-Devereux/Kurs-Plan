@@ -17,6 +17,9 @@ urlpatterns = [
     ),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
+    path('texts/<slug:key>/edit/', views.SiteTextUpdateView.as_view(),
+         name='site_text_edit'),
+
     path('categories/add/', views.CategoryCreateView.as_view(),
          name='category_add'),
     path('categories/<int:pk>/edit/', views.CategoryUpdateView.as_view(),

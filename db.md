@@ -1,6 +1,6 @@
 # Database Structure
 
-This document describes the current database schema for **Kurs-Plan**, as defined by the Django models in `courses/` and `specializations/`. The `planner/` and `manage/` apps contain no database tables.
+This document describes the current database schema for **Kurs-Plan**, as defined by the Django models in `courses/`, `specializations/`, and `planner/`. The `manage/` app contains no database tables.
 
 ## Database engine
 
@@ -73,6 +73,12 @@ erDiagram
         varchar rule_type
         decimal required_credit_points
         bool active
+    }
+
+    SiteText {
+        bigint id PK
+        varchar key UK
+        text content
     }
 ```
 
@@ -232,6 +238,27 @@ Purpose: Defines which modules contribute credit toward an additional rule (e.g.
 
 ---
 
+### `planner_sitetext`
+
+Django model: `planner.SiteText`  
+Purpose: Admin-editable text snippets shown on student-facing pages, looked up by key.
+
+| Column    | Type           | Constraints / default | Notes |
+|-----------|----------------|----------------------|-------|
+| `id`      | `BIGINT`       | PK, auto-increment   | |
+| `key`     | `VARCHAR(64)`  | UNIQUE, NOT NULL     | `SlugField`; snippet identifier |
+| `content` | `TEXT`         | NOT NULL, may be empty | `blank=True` |
+
+**Ordering:** `key`.
+
+**Known keys:**
+
+| Key | Used for |
+|-----|----------|
+| `checker_subtitle` | Text below the "Specialization checker" title on the `/checker/` page (seeded by data migration) |
+
+---
+
 ## Referential integrity (`on_delete` behaviour)
 
 | From table | FK column | To table | On delete |
@@ -272,8 +299,9 @@ Admin users authenticate via `auth_user` (`is_staff=True`). Student-facing check
 | `specializations_specializationmodulerequirement` | `specializations` | Entity (Specialization ↔ Module) |
 | `specializations_additionalrequirementrule` | `specializations` | Entity |
 | `specializations_additionalrequirementrule_modules_included` | `specializations` | Junction (Rule ↔ Module) |
+| `planner_sitetext` | `planner` | Entity |
 
-**Total application tables:** 8 (6 entity tables + 2 junction tables).
+**Total application tables:** 9 (7 entity tables + 2 junction tables).
 
 ---
 
@@ -292,6 +320,8 @@ Schema history (in apply order):
 | `specializations.0002_specializationmodulerequirement` | Per-module credit requirements |
 | `specializations.0003_additionalrequirementrule` | Additional requirement rules |
 | `specializations.0004_additionalrequirementrule_modules_included` | M2M `modules_included` on additional rules |
+| `planner.0001_initial` | `SiteText` |
+| `planner.0002_seed_checker_subtitle` | Data migration: seed `checker_subtitle` row with the current checker-page subtitle |
 
 ---
 

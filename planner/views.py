@@ -8,7 +8,10 @@ from django.views.generic import FormView
 from courses.models import Course, CourseCategory
 
 from .forms import StudentCheckerForm
+from .models import SiteText
 from .services import evaluate_selection
+
+CHECKER_SUBTITLE_KEY = 'checker_subtitle'
 
 
 class CheckerView(FormView):
@@ -29,6 +32,11 @@ class CheckerView(FormView):
         ctx['selected_course_ids'] = selected_ids
         ctx['webtool_banner_logo_right'] = (
             f'{settings.MEDIA_URL}ui/DepChe_Logo_DE_Schwarz_RGB.png'
+        )
+        ctx['subtitle'] = (
+            SiteText.objects.filter(key=CHECKER_SUBTITLE_KEY)
+            .values_list('content', flat=True)
+            .first()
         )
         return ctx
 

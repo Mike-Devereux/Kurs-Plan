@@ -1,0 +1,30 @@
+<header class="box__header">
+    <h2 class="box__title" id="{{ box_id }}-title">{{ title }}</h2>
+</header>
+{% if items %}
+    <table class="list-table">
+        <thead>
+            <tr>
+                <th>Text</th>
+                <th>Content</th>
+                <th class="actions" aria-label="Actions"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for text in items %}
+                <tr>
+                    <td>{{ text.label }}</td>
+                    <td>{{ text.content|truncatechars:120 }}</td>
+                    <td class="actions">
+                        <button type="button" class="btn btn--link"
+                                hx-get="{% url 'manage:site_text_edit' text.key %}"
+                                hx-target="#modal" hx-swap="innerHTML"
+                                aria-label="Edit {{ text.label }}">Edit</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="box__placeholder">No page texts yet.</p>
+{% endif %}

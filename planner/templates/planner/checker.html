@@ -4,11 +4,9 @@
 
 {% block student_content %}
     <h1 class="page-title">Specialization checker</h1>
-    <p class="page-subtitle">
-        Choose your target specialization, pick the courses you plan to take,
-        then submit to see whether they satisfy the specialization's
-        requirements.
-    </p>
+    {% if subtitle %}
+        <p class="page-subtitle">{{ subtitle|linebreaksbr }}</p>
+    {% endif %}
 
     <form method="post" action="{% url 'planner:checker' %}" class="checker"
           data-checker-form>
