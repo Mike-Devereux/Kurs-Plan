@@ -68,29 +68,32 @@ Reason:
 
 ### Frontend
 
-Initial version:
+Use:
 
 - Django templates
-
-Optional enhancement:
-
-- HTMX
+- HTMX (adopted)
 
 Reason:
 
 - Simple and fast to build
 - Avoids unnecessary frontend complexity initially
 
+HTMX is used in the admin dashboard (modal add/edit/delete with out-of-band
+list refreshes) and on the student checker page (the category description
+info-icon toggle).
+
 ---
 
 ## 2. Suggested Django App Structure
 
 ```text
-degree_checker/
-├── config/
-├── courses/
-├── specializations/
-├── planner/
+Kurs-Plan/
+├── kurs_plan/          # project package (settings, root urls, wsgi/asgi)
+├── courses/            # CourseCategory, Module, Course
+├── specializations/    # Specialization, requirements, additional rules, seed cmd
+├── planner/            # evaluation engine + student checker
+├── manage/             # custom admin dashboard (staff-only CRUD)
+├── webtool_template/   # vendored shared site shell (header/footer/banner)
 ├── templates/
 ├── static/
 ├── manage.py
@@ -125,10 +128,17 @@ Suggested model:
 
 ```python
 class CourseCategory(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
     display_order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 ```
+
+`display_order` has a uniqueness constraint
+(`unique_course_category_display_order`); the model provides a
+`lowest_unused_display_order()` helper to suggest the next free value.
+`description` is optional and, when set, is surfaced to students via an
+info-icon on the course-selection page.
 
 Courses should reference categories using:
 
@@ -169,7 +179,13 @@ class SpecializationModuleRequirement(models.Model):
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
     module = models.ForeignKey(Module, on_delete=models.PROTECT)
     required_credit_points = models.DecimalField(max_digits=5, decimal_places=2)
+    display_order = models.PositiveIntegerField(default=0)
 ```
+
+Cross-module rules are modelled separately by `AdditionalRequirementRule`,
+which carries a many-to-many `modules_included` relation to `Module` so a
+single rule can span several modules (e.g. "at least 9 credits across Methods
+and Statistics").
 
 ---
 
@@ -177,14 +193,21 @@ class SpecializationModuleRequirement(models.Model):
 
 ### Separate Logic from Views
 
-Recommended structure:
+Structure:
 
 ```text
 planner/
-├── evaluator.py
-├── allocation.py
-├── scoring.py
-└── result.py
+├── domain.py        # pure dataclasses (EvaluationInput, Allocation, ...)
+├── loader.py        # ORM → EvaluationInput projection
+├── allocator/       # search strategies
+│   ├── base.py          # protocol + credit helpers
+│   ├── backtracking.py  # bounded depth-first enumeration
+│   └── exact.py         # exact MILP rescue (scipy.optimize.milp)
+├── rules/           # additional-rule evaluators (registry)
+├── evaluator.py     # orchestration: search → score → decide
+├── scoring.py       # lexicographic best-failed scoring
+├── presenter.py     # EvaluationResult → template view models
+└── services.py      # evaluate_selection entry point
 ```
 
 ---
@@ -201,16 +224,24 @@ Reason:
 
 ### Allocation Strategy
 
-Initial approach:
+First pass (`allocator/backtracking.py`):
 
-- Generate possible module assignments
+- Generate possible module assignments via depth-first enumeration
 - Test combinations
 - Return valid solution if found
 - Otherwise return best failed solution
+- Bounded by a node budget (`MAX_NODES`)
 
-Possible future optimization:
+Exact rescue (`allocator/exact.py`):
 
-- Integer linear programming
+- Integer linear programming **is now implemented**, using
+  `scipy.optimize.milp` (HiGHS).
+- It runs when the backtracking budget is exhausted, guaranteeing the
+  pass/fail verdict is never a false "failure": the solver either finds a
+  satisfying allocation (→ success) or proves infeasibility.
+- SciPy is therefore a hard runtime dependency.
+
+See README.md ("Evaluation algorithm", Step 4a) for the full model.
 
 ---
 
@@ -259,11 +290,15 @@ On the page admins can:
 -See another box with a list of existing course specializations
 - Add/edit/delete specializations
 
+- See another box with a list of editable page texts (`SiteText`)
+- Edit the content of each page text (e.g. the student checker subtitle)
+
 The add/edit workflow should change depending on the object type, so:
-- in the case of course categories only the properties are set
+- in the case of course categories the properties are set, including an optional `description`
 - in the case of courses properties are set, plus there is a dropdown with a list of current course categories, where one must be selected, plus a dropdown for modules, where one or more modules must be selected
 - in the case of modules only properties are set
 - in the case of specializations properties are set, plus module requirements and additional requirement rules. For module requirements, it should be possible to add/edit/delete rows with one rule per row. In each row a unique module must be selected from a dropdown and a corresponding required_credit_points must be entered. For additional requirement rules, it should be possible to similarly add/edit/delete one per row.
+- in the case of page texts only the content is edited; the key is a fixed identifier and is not user-editable.
 
 
 ---

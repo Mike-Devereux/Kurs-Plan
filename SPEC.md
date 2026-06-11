@@ -46,6 +46,7 @@ Admins can:
 - Define which modules each course can count toward.
 - Define specialization-specific module credit requirements.
 - Define additional credit-point rules.
+- Edit admin-managed page texts (for example, the student checker page subtitle).
 
 ---
 
@@ -68,7 +69,7 @@ Fields:
 
 Rules:
 
-- `credit_points` must be stored as a float-compatible numeric type because some courses may award half credit points.
+- `credit_points` must be stored as a fixed-precision decimal type (`DecimalField`, 2 decimal places) so that half credit points (e.g. `4.5`) are represented exactly without floating-point rounding error.
 - `code`s are unique
 - Each course belongs to one category.
 - Each course can count toward one or more modules.
@@ -83,6 +84,7 @@ Course categories are used to visually group courses on the student-facing cours
 Fields:
 
 - `name`
+- `description`
 - `display_order`
 - `active`
 
@@ -92,6 +94,7 @@ Rules:
 - Courses must select from existing categories using a dropdown.
 - Categories should be fixed choices for normal course editing.
 - Categories are used for display grouping only unless later rules explicitly use them for validation.
+- `description` is optional. When present, the student course-selection page shows an information icon next to the category title that reveals the description when clicked.
 
 Example categories:
 
@@ -165,6 +168,24 @@ Rules:
 - `required_credit_points` must support float values.
 - Rules may apply across a subset of modules.
 - Rules are evaluated after or alongside module-level requirements.
+
+---
+
+## 3.7 Site Text
+
+Stores short admin-editable pieces of page copy that are not tied to a specific
+domain object (for example, the subtitle shown on the student checker page).
+
+Fields:
+
+- `key` (fixed identifier, not user-editable)
+- `content`
+
+Rules:
+
+- Texts are managed by admins from the dashboard.
+- The `key` selects where the text appears; only the `content` is edited.
+- A missing or empty text simply renders nothing on the page.
 
 ---
 
@@ -245,6 +266,7 @@ Admins must be able to manage:
 - Modules
 - Specializations
 - Rules
+- Page texts (`SiteText`)
 
 ---
 
