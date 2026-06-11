@@ -12,7 +12,10 @@ from specializations.models import (
 class CourseCategoryForm(forms.ModelForm):
     class Meta:
         model = CourseCategory
-        fields = ['name', 'display_order', 'active']
+        fields = ['name', 'description', 'display_order', 'active']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

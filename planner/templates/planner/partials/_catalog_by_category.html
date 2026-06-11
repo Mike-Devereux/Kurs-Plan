@@ -6,8 +6,21 @@
                     <h3 id="cat-{{ category.pk }}-title" class="catalog__category-title">
                         {{ category.name }}
                     </h3>
+                    {% if category.description %}
+                        <button type="button"
+                                class="catalog__info-btn"
+                                aria-expanded="false"
+                                aria-controls="cat-{{ category.pk }}-desc"
+                                aria-label="Show description for {{ category.name }}"
+                                data-category-info>i</button>
+                    {% endif %}
                     <span class="catalog__count" aria-hidden="true">{{ courses|length }}</span>
                 </header>
+                {% if category.description %}
+                    <p id="cat-{{ category.pk }}-desc" class="catalog__category-desc" hidden>
+                        {{ category.description }}
+                    </p>
+                {% endif %}
                 <ul class="catalog__list" role="list">
                     {% for course in courses %}
                         <li class="catalog__item">

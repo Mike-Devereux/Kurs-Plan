@@ -11,6 +11,7 @@
             </ul>
         {% endif %}
         {% include 'manage/partials/_field.html' with field=form.name %}
+        {% include 'manage/partials/_field.html' with field=form.description %}
         {% include 'manage/partials/_field.html' with field=form.display_order %}
         {% include 'manage/partials/_field.html' with field=form.active layout='check' %}
         <div class="modal__actions">

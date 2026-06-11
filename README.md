@@ -13,7 +13,7 @@ When a student submits a specialization and a set of courses, the engine in `pla
 The problem is **course-to-module assignment under constraints**. Each course awards a fixed number of credit points and may count toward one or more modules. A specialization defines:
 
 1. **Per-module requirements** — minimum credit points required in each module.
-2. **Additional rules** — cross-module requirements (for example, at least 9 credits across Methods and Statistics combined).
+2. **Additional rules** — cross-module requirements (for example, at least 9 credits across Module1 and Module2 combined).
 
 Because a course can be eligible for multiple modules, the engine must try different ways of assigning each course to exactly one module (or leaving it unused) and then check whether all requirements are satisfied.
 

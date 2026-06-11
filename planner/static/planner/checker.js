@@ -5,6 +5,21 @@
     if (!form) {
         return;
     }
+
+    form.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-category-info]');
+        if (!btn) {
+            return;
+        }
+        var desc = document.getElementById(btn.getAttribute('aria-controls'));
+        if (!desc) {
+            return;
+        }
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        desc.hidden = expanded;
+    });
+
     var panel = form.querySelector('[data-selected-panel]');
     var list = form.querySelector('[data-selected-list]');
     var emptyMsg = form.querySelector('[data-selected-empty]');

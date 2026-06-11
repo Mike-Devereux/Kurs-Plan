@@ -3,6 +3,7 @@ from django.db import models
 
 class CourseCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
     display_order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 

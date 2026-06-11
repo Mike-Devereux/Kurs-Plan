@@ -27,6 +27,7 @@ erDiagram
     CourseCategory {
         bigint id PK
         varchar name UK
+        text description
         int display_order
         bool active
     }
@@ -88,7 +89,8 @@ Purpose: Groups courses for display on the student course-selection page.
 |-----------------|-----------------|----------------------|-------|
 | `id`            | `BIGINT`        | PK, auto-increment   | |
 | `name`          | `VARCHAR(255)`  | UNIQUE, NOT NULL     | |
-| `display_order` | `INTEGER`       | NOT NULL, default `0`| Unsigned (`PositiveIntegerField`) |
+| `description`   | `TEXT`          | NOT NULL, may be empty | `blank=True` |
+| `display_order` | `INTEGER`       | NOT NULL, default `0`| Unsigned (`PositiveIntegerField`), UNIQUE (`unique_course_category_display_order`) |
 | `active`        | `BOOLEAN`       | NOT NULL, default `true` | |
 
 **Ordering:** `display_order`, then `name`.
@@ -284,6 +286,8 @@ Schema history (in apply order):
 | `courses.0001_initial` | `CourseCategory` |
 | `courses.0002_module` | `Module` |
 | `courses.0003_course` | `Course` + M2M to `Module` |
+| `courses.0004_coursecategory_display_order_unique` | Unique constraint on `CourseCategory.display_order` |
+| `courses.0005_coursecategory_description` | `description` field on `CourseCategory` |
 | `specializations.0001_initial` | `Specialization` |
 | `specializations.0002_specializationmodulerequirement` | Per-module credit requirements |
 | `specializations.0003_additionalrequirementrule` | Additional requirement rules |
