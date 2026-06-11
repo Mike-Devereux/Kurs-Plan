@@ -1,0 +1,7 @@
+{% load webtool_template_tags %}
+<footer class="{% wt_class 'global-footer' %}">
+    <span class="{% wt_class 'global-footer-text' %}" style="margin-right: auto; color: #ffffff;">Contact: michael.devereux@unibas.ch</span>
+    {% if webtool_footer_text %}
+        <span class="{% wt_class 'global-footer-text' %}">{{ webtool_footer_text }}</span>
+    {% endif %}
+</footer>

@@ -183,6 +183,16 @@ def evaluate(
 
     budget_exhausted = bool(getattr(allocator, 'budget_exhausted', False))
 
+    # The bounded DFS can exhaust its node budget before reaching a valid
+    # allocation, producing a *false* failure. When that happens, fall back
+    # to an exact ILP solve: if a fully-satisfying allocation exists it is
+    # found here (no budget), otherwise the existing best-failed result
+    # stands unchanged.
+    if budget_exhausted:
+        rescued = _attempt_exact_success(input_, start_ns)
+        if rescued is not None:
+            return rescued
+
     if best is None:
         reasons = [FailureReason(code=NO_VIABLE_ALLOCATION)]
         if budget_exhausted:
@@ -210,6 +220,48 @@ def evaluate(
         additional_rule_statuses=best_rules,
         unused_course_ids=unused_course_ids(best_allocation, input_),
         failure_reasons=tuple(reasons),
+    )
+
+
+def _attempt_exact_success(
+    input_: EvaluationInput,
+    start_ns: int,
+) -> Optional[EvaluationResult]:
+    """Exact ILP rescue for budget-exhausted searches.
+
+    Returns a ``SUCCESS`` :class:`EvaluationResult` when the solver finds a
+    fully-satisfying allocation, or ``None`` when no satisfying allocation
+    exists or the solver is unavailable (so the caller keeps its existing
+    best-failed result). Only success can be rescued: a genuine failure
+    verdict is left to the existing best-failed / budget-note path.
+    """
+    from .allocator.exact import solve_feasible
+
+    allocation = solve_feasible(input_)
+    if allocation is None:
+        return None
+
+    module_statuses = compute_module_statuses(allocation, input_)
+    rule_statuses = _compute_rule_statuses(allocation, input_)
+    if not all(s.satisfied for s in module_statuses):
+        return None
+    if not all(s.satisfied for s in rule_statuses):
+        return None
+
+    if logger.isEnabledFor(logging.DEBUG):
+        elapsed_ms = (time.monotonic_ns() - start_ns) / 1_000_000
+        logger.debug(
+            'planner.evaluate status=%s via=exact_ilp time_ms=%.2f',
+            SUCCESS,
+            elapsed_ms,
+        )
+    return EvaluationResult(
+        status=SUCCESS,
+        allocation=allocation,
+        module_statuses=module_statuses,
+        additional_rule_statuses=rule_statuses,
+        unused_course_ids=unused_course_ids(allocation, input_),
+        failure_reasons=(),
     )
 
 

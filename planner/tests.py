@@ -1707,3 +1707,172 @@ class AllocationHelperTests(SimpleTestCase):
     def test_unused_course_ids(self):
         a = Allocation(pairs=((1, 10),))
         self.assertEqual(unused_course_ids(a, self.inp), frozenset({2}))
+
+
+class ExactSolverRescueTests(SimpleTestCase):
+    """Step: exact ILP rescue for budget-exhausted searches.
+
+    The bounded backtracking allocator can exhaust its node budget before
+    reaching a valid allocation, yielding a *false* failure. When the
+    budget is exhausted, the evaluator falls back to an exact
+    :func:`planner.allocator.exact.solve_feasible` solve.
+    """
+
+    def _two_module_feasible_input(self) -> EvaluationInput:
+        # Two modules each needing 6 CP; two 6-CP courses each eligible for
+        # both. The only satisfying allocation splits them one-per-module.
+        return EvaluationInput(
+            specialization_id=1,
+            specialization_name='S',
+            modules=(ModuleRef(id=10, name='M10'), ModuleRef(id=20, name='M20')),
+            module_requirements=(
+                ModuleRequirement(
+                    module_id=10,
+                    required_credit_points=Decimal('6'),
+                    display_order=0,
+                ),
+                ModuleRequirement(
+                    module_id=20,
+                    required_credit_points=Decimal('6'),
+                    display_order=1,
+                ),
+            ),
+            additional_rules=(),
+            courses=(
+                CourseRef(
+                    id=1, code='A', title='A',
+                    credit_points=Decimal('6'),
+                    eligible_module_ids=frozenset({10, 20}),
+                ),
+                CourseRef(
+                    id=2, code='B', title='B',
+                    credit_points=Decimal('6'),
+                    eligible_module_ids=frozenset({10, 20}),
+                ),
+            ),
+        )
+
+    def test_budget_exhausted_feasible_selection_is_rescued(self):
+        inp = self._two_module_feasible_input()
+        # A 1-node budget guarantees the DFS exhausts before any leaf.
+        tiny = BacktrackingAllocator(max_nodes=1)
+        result = evaluate(inp, allocator=tiny)
+
+        self.assertEqual(result.status, SUCCESS)
+        self.assertTrue(all(s.satisfied for s in result.module_statuses))
+        self.assertEqual(result.failure_reasons, ())
+        # Each course is placed on exactly one (distinct) module.
+        placed = dict(result.allocation.pairs)
+        self.assertEqual(set(placed.values()), {10, 20})
+
+    def test_budget_exhausted_infeasible_selection_stays_failure(self):
+        # Module needs 100 CP but only 4 CP of eligible courses exist:
+        # no exact allocation can rescue this, so the failure verdict and
+        # the SEARCH_BUDGET_EXCEEDED note must remain.
+        inp = EvaluationInput(
+            specialization_id=1,
+            specialization_name='S',
+            modules=(ModuleRef(id=10, name='M'),),
+            module_requirements=(
+                ModuleRequirement(
+                    module_id=10,
+                    required_credit_points=Decimal('100'),
+                    display_order=0,
+                ),
+            ),
+            additional_rules=(),
+            courses=tuple(
+                CourseRef(
+                    id=i, code=f'C{i}', title='T',
+                    credit_points=Decimal('1'),
+                    eligible_module_ids=frozenset({10}),
+                )
+                for i in range(1, 5)
+            ),
+        )
+        result = evaluate(inp, allocator=BacktrackingAllocator(max_nodes=8))
+        self.assertEqual(result.status, FAILURE)
+        self.assertIn(
+            SEARCH_BUDGET_EXCEEDED,
+            [r.code for r in result.failure_reasons],
+        )
+
+    def test_solve_feasible_returns_allocation_when_satisfiable(self):
+        from planner.allocator.exact import solve_feasible
+
+        allocation = solve_feasible(self._two_module_feasible_input())
+        self.assertIsNotNone(allocation)
+        placed = dict(allocation.pairs)
+        # Both courses placed, one per module.
+        self.assertEqual(sorted(placed), [1, 2])
+        self.assertEqual(set(placed.values()), {10, 20})
+
+    def test_solve_feasible_returns_none_when_infeasible(self):
+        from planner.allocator.exact import solve_feasible
+
+        inp = EvaluationInput(
+            specialization_id=1,
+            specialization_name='S',
+            modules=(ModuleRef(id=10, name='M'),),
+            module_requirements=(
+                ModuleRequirement(
+                    module_id=10,
+                    required_credit_points=Decimal('100'),
+                    display_order=0,
+                ),
+            ),
+            additional_rules=(),
+            courses=(
+                CourseRef(
+                    id=1, code='A', title='A',
+                    credit_points=Decimal('1'),
+                    eligible_module_ids=frozenset({10}),
+                ),
+            ),
+        )
+        self.assertIsNone(solve_feasible(inp))
+
+    def test_solve_feasible_honours_cross_module_rule(self):
+        from planner.allocator.exact import solve_feasible
+
+        # Base module needs 6 CP (met by the 6-CP course alone), but a rule
+        # needs 9 CP across the base module + a second module. The 3-CP
+        # course must be placed (not skipped) to satisfy the rule.
+        inp = EvaluationInput(
+            specialization_id=1,
+            specialization_name='S',
+            modules=(ModuleRef(id=10, name='M10'), ModuleRef(id=20, name='M20')),
+            module_requirements=(
+                ModuleRequirement(
+                    module_id=10,
+                    required_credit_points=Decimal('6'),
+                    display_order=0,
+                ),
+            ),
+            additional_rules=(
+                AdditionalRule(
+                    id=99,
+                    name='9 across M10+M20',
+                    rule_type=MIN_CREDITS_RULE_TYPE,
+                    required_credit_points=Decimal('9'),
+                    modules_included_ids=frozenset({10, 20}),
+                ),
+            ),
+            courses=(
+                CourseRef(
+                    id=1, code='BIG', title='Big',
+                    credit_points=Decimal('6'),
+                    eligible_module_ids=frozenset({10}),
+                ),
+                CourseRef(
+                    id=2, code='SMALL', title='Small',
+                    credit_points=Decimal('3'),
+                    eligible_module_ids=frozenset({20}),
+                ),
+            ),
+        )
+        allocation = solve_feasible(inp)
+        self.assertIsNotNone(allocation)
+        placed = dict(allocation.pairs)
+        self.assertEqual(placed[1], 10)
+        self.assertEqual(placed[2], 20)
