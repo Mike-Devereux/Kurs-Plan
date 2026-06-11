@@ -1,12 +1,7 @@
 """Pure domain types for the specialization evaluation engine.
 
 No Django imports — this module is safe to import from tests without DB
-setup. Milestone 5 will populate loader/evaluator/presenter to use these
-types end-to-end.
-
-``CheckResultSummary`` holds the plain-data fields that mirror the
-template-facing :class:`planner.services.CheckResult` (status, credit
-totals, messages) without ORM objects.
+setup. The loader/evaluator/presenter use these types end-to-end.
 """
 
 from __future__ import annotations
@@ -16,20 +11,7 @@ from decimal import Decimal
 from typing import Optional
 
 
-@dataclass(frozen=True)
-class CheckResultSummary:
-    """Plain-data slice of a student check outcome (no ORM references).
-
-    Built by the engine / stub and merged into ``services.CheckResult`` in
-    the presenter layer.
-    """
-
-    status: str
-    total_credit_points: Decimal
-    messages: tuple[str, ...] = field(default_factory=tuple)
-
-
-# --- Engine input (Milestone 5: wired by ``loader.build_input``) ----------
+# --- Engine input (wired by ``loader.build_input``) ----------
 
 
 @dataclass(frozen=True)

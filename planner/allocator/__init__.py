@@ -6,7 +6,6 @@ from .backtracking import MAX_NODES, BacktrackingAllocator
 from .base import (
     AllocatorProtocol,
     allocation_as_map,
-    assigned_module,
     course_by_id,
     credits_for_module,
     unused_course_ids,
@@ -17,7 +16,6 @@ __all__ = [
     'BacktrackingAllocator',
     'MAX_NODES',
     'allocation_as_map',
-    'assigned_module',
     'course_by_id',
     'credits_for_module',
     'default_allocator',

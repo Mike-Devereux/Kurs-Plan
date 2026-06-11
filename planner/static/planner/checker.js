@@ -20,7 +20,6 @@
         desc.hidden = expanded;
     });
 
-    var panel = form.querySelector('[data-selected-panel]');
     var list = form.querySelector('[data-selected-list]');
     var emptyMsg = form.querySelector('[data-selected-empty]');
     var countEl = form.querySelector('[data-selected-count]');

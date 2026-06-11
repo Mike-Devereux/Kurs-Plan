@@ -17,7 +17,6 @@ from .allocator import (
     MAX_NODES,
     BacktrackingAllocator,
     allocation_as_map,
-    assigned_module,
     course_by_id,
     credits_for_module,
     default_allocator,
@@ -28,7 +27,6 @@ from .domain import (
     AdditionalRule,
     AdditionalRuleStatus,
     Allocation,
-    CheckResultSummary,
     CourseRef,
     EvaluationInput,
     EvaluationResult,
@@ -58,13 +56,6 @@ from .services import evaluate_selection
 
 
 class DomainTypesTests(TestCase):
-    def test_check_result_summary_defaults_messages(self):
-        summary = CheckResultSummary(
-            status='pending',
-            total_credit_points=Decimal('0'),
-        )
-        self.assertEqual(summary.messages, ())
-
     def test_course_ref_frozen_fields(self):
         ref = CourseRef(
             id=1,
@@ -1689,12 +1680,9 @@ class AllocationHelperTests(SimpleTestCase):
         self.assertEqual(set(d), {1, 2})
         self.assertEqual(d[1].code, 'C1')
 
-    def test_allocation_as_map_and_assigned_module(self):
+    def test_allocation_as_map(self):
         a = Allocation(pairs=((1, 10), (2, None)))
         self.assertEqual(allocation_as_map(a), {1: 10, 2: None})
-        self.assertEqual(assigned_module(a, 1), 10)
-        self.assertIsNone(assigned_module(a, 2))
-        self.assertIsNone(assigned_module(a, 99))
 
     def test_credits_for_module(self):
         a = Allocation(pairs=((1, 10), (2, 10)))

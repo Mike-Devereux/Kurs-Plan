@@ -367,7 +367,6 @@ a {
     border-left: 4px solid #d1d5da;
 }
 
-.result__card--pending { border-left-color: #6a737d; }
 .result__card--success { border-left-color: #1a7f37; }
 .result__card--failure { border-left-color: #cf222e; }
 

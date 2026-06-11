@@ -1,9 +1,7 @@
 <h2 id="result-heading" class="section-title">Result</h2>
 
 <div class="result__card result__card--{{ result.status }}">
-    {% if result.status == 'pending' %}
-        <p class="result__headline">Evaluation engine not yet implemented.</p>
-    {% elif result.status == 'success' %}
+    {% if result.status == 'success' %}
         <p class="result__headline">Requirements satisfied.</p>
     {% else %}
         <p class="result__headline">Requirements not satisfied.</p>

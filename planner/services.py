@@ -70,7 +70,6 @@ class CheckResult:
 
     - ``"success"`` — requirements satisfied.
     - ``"failure"`` — best-effort allocation with reasons.
-    - ``"pending"`` — reserved for defensive / transitional UI only.
     """
 
     status: str

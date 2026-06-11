@@ -36,11 +36,6 @@ def allocation_as_map(allocation: Allocation) -> dict[int, Optional[int]]:
     return dict(allocation.pairs)
 
 
-def assigned_module(allocation: Allocation, course_id: int) -> Optional[int]:
-    """Module id assigned to ``course_id``, or ``None`` if unused / absent."""
-    return allocation_as_map(allocation).get(course_id)
-
-
 def credits_for_module(
     allocation: Allocation,
     module_id: int,
