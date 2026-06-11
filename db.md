@@ -188,7 +188,10 @@ Purpose: Minimum credit points required in a specific module for a specializatio
 | `required_credit_points` | `DECIMAL(5,2)` | NOT NULL             | |
 | `display_order`          | `INTEGER`      | NOT NULL, default `0`| Unsigned; controls evaluation/display order |
 
-**Unique constraint:** `unique_specialization_module` on `(specialization_id, module_id)` — each module appears at most once per specialization.
+**Unique constraints:**
+
+- `unique_specialization_module` on `(specialization_id, module_id)` — each module appears at most once per specialization.
+- `unique_specialization_module_display_order` on `(specialization_id, display_order)` — display order is unique within a specialization.
 
 **Ordering:** `specialization`, `display_order`, `module`.
 
@@ -320,6 +323,7 @@ Schema history (in apply order):
 | `specializations.0002_specializationmodulerequirement` | Per-module credit requirements |
 | `specializations.0003_additionalrequirementrule` | Additional requirement rules |
 | `specializations.0004_additionalrequirementrule_modules_included` | M2M `modules_included` on additional rules |
+| `specializations.0005_specializationmodulerequirement_display_order_unique` | Dedupe `display_order` per specialization, then add unique constraint on `(specialization, display_order)` |
 | `planner.0001_initial` | `SiteText` |
 | `planner.0002_seed_checker_subtitle` | Data migration: seed `checker_subtitle` row with the current checker-page subtitle |
 
