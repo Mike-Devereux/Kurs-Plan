@@ -142,7 +142,6 @@ WEBTOOL_TEMPLATE = {
     'PREFIX': 'kursplan',
     'LAYOUT_MODE': 'template',
     'FOOTER_TEXT': 'Kurs-Plan — University of Basel',
-    'LOGOUT_URL': '/manage/logout/',
     'HOME_URL_RESOLVER': 'kurs_plan.navigation.home_url_for_request',
     'FONT_URLS': [
         (

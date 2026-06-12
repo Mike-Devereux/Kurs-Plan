@@ -17,7 +17,6 @@
     {% if user.is_authenticated %}
         <nav class="manage-toolbar" aria-label="Management">
             <span class="manage-toolbar__user">{{ user.get_username }}</span>
-            <a class="manage-toolbar__link" href="/admin/">Django admin</a>
         </nav>
     {% endif %}
 

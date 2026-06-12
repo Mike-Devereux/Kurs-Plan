@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from django.templatetags.static import static
+from django.urls import reverse
 
 from webtool_template.bootstrap import shell_context
 
@@ -13,4 +14,5 @@ def webtool_shell(request):
     context['webtool_banner_logo_left'] = static(
         'webtool_template/logos/uni-basel-logo.svg'
     )
+    context['webtool_logout_url'] = reverse('manage:logout')
     return context
