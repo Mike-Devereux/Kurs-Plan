@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
-from django.conf import settings
+from django.templatetags.static import static
 from django.views.generic import FormView
 
 from courses.models import Course, CourseCategory
@@ -30,8 +30,8 @@ class CheckerView(FormView):
         ctx['categories_with_courses'] = self._categories_with_courses()
         selected_ids = self._selected_ids_from_request()
         ctx['selected_course_ids'] = selected_ids
-        ctx['webtool_banner_logo_right'] = (
-            f'{settings.MEDIA_URL}ui/DepChe_Logo_DE_Schwarz_RGB.png'
+        ctx['webtool_banner_logo_right'] = static(
+            'webtool_template/logos/DepChe_Logo_DE_Schwarz_RGB.png'
         )
         ctx['subtitle'] = (
             SiteText.objects.filter(key=CHECKER_SUBTITLE_KEY)
